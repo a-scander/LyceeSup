@@ -1,4 +1,4 @@
-const filieresGeneral = {
+export const filieresGeneral = {
     l: "taux_reu_l",
     es: "taux_reu_es",
     s: "taux_reu_s",
@@ -12,7 +12,7 @@ const filieresGeneral = {
     sthr: "taux_reu_sthr"
   };
   
-  const filieresPro = {
+  export const filieresPro = {
     pluri_techno: "taux_reu_pluri_techno",
     transfo: "taux_reu_transfo",
     genie_civil: "taux_reu_genie_civil",
@@ -27,4 +27,3 @@ const filieresGeneral = {
     services: "taux_reu_services"
   };
   
-  module.exports = { filieresGeneral, filieresPro };

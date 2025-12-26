@@ -1,6 +1,6 @@
-const { loadJson, saveJson, indexByKey } = require("./utils");
-const { filieresGeneral, filieresPro } = require("./filieres");
-const { buildFeatures } = require("./buildFeatures");
+import { loadJson, saveJson, indexByKey } from "./utils.js";
+import { filieresGeneral, filieresPro } from "./filieres.js";
+import { buildFeatures,duplicateByUai }  from "./functions.js";
 
 async function main() {
   const json_taux_lycee_general = await loadJson("../../data/taux_lycee_general.json");
@@ -13,7 +13,6 @@ async function main() {
 
   const featuresGeneral = buildFeatures(
     json_taux_lycee_general,
-    "general",
     filieresGeneral,
     annuaireByUai,
     optionByUai
@@ -21,15 +20,15 @@ async function main() {
 
   const featuresPro = buildFeatures(
     json_taux_lycee_pro,
-    "professionnel",
     filieresPro,
     annuaireByUai,
     optionByUai
   );
+  const resultat = duplicateByUai([...featuresGeneral, ...featuresPro]);
 
   const geojson = {
     type: "FeatureCollection",
-    features: [...featuresGeneral, ...featuresPro]
+    features: resultat
   };
 
   await saveJson("../../data/lycees.geojson", geojson);

@@ -1,26 +1,26 @@
-const { readFile, writeFile } = require("fs/promises");
+import { readFile, writeFile } from "fs/promises";
 
-async function loadJson(path) {
+export async function loadJson(path) {
   const txt = await readFile(path, "utf8");
   return JSON.parse(txt);
 }
 
-async function saveJson(path, data) {
+export async function saveJson(path, data) {
   await writeFile(path, JSON.stringify(data, null, 2), "utf8");
 }
 
-const toNumOrNull = (v) => {
+export const toNumOrNull = (v) => {
   if (v === null || v === undefined || v === "") return null;
   const n = Number(v);
   return Number.isNaN(n) ? null : n;
 };
 
-function moyenne(values) {
+export function moyenne(values) {
   if (values.length === 0) return null;
   return values.reduce((a, b) => a + b, 0) / values.length;
 }
 
-const firstNonEmpty = (...vals) => {
+export const firstNonEmpty = (...vals) => {
   for (const v of vals) {
     if (v !== null && v !== undefined) {
       const s = String(v).trim();
@@ -30,7 +30,7 @@ const firstNonEmpty = (...vals) => {
   return null;
 };
 
-function indexByKey(array, keyName) {
+export function indexByKey(array, keyName) {
   const index = {};
   for (const item of array) {
     const key = item[keyName];
@@ -39,11 +39,4 @@ function indexByKey(array, keyName) {
   return index;
 }
 
-module.exports = {
-  loadJson,
-  saveJson,
-  toNumOrNull,
-  moyenne,
-  firstNonEmpty,
-  indexByKey
-};
+

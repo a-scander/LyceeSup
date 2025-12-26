@@ -1,6 +1,6 @@
-const { toNumOrNull, moyenne, firstNonEmpty } = require("./utils");
+import { toNumOrNull, moyenne, firstNonEmpty } from "./utils.js";
 
-function buildFeatures(json, voie, filieres, annuaireByUai, optionByUai) {
+export function buildFeatures(json, filieres, annuaireByUai, optionByUai) {
   const mapLycee = {};
 
   for (const row of json) {
@@ -10,7 +10,6 @@ function buildFeatures(json, voie, filieres, annuaireByUai, optionByUai) {
     if (!mapLycee[uai]) {
       mapLycee[uai] = {
         uai,
-        voie,
         libelle_uai: row.libelle_uai,
         departement: row.libelle_departement,
         commune: row.libelle_commune,
@@ -63,8 +62,9 @@ function buildFeatures(json, voie, filieres, annuaireByUai, optionByUai) {
       statut_public_prive: ann?.statut_public_prive ?? null,
       code_postal: ann?.code_postal ?? null,
       nom_commune: ann?.nom_commune ?? null,
-
+      voie_professionnelle : toNumOrNull(ann?.voie_professionnelle),
       voie_technologique: toNumOrNull(ann?.voie_technologique),
+      voie_generale: toNumOrNull(ann?.voie_generale),
       telephone: ann?.telephone ?? null,
       adresse: adresse,
       fax: ann?.fax ?? null,
@@ -95,4 +95,15 @@ function buildFeatures(json, voie, filieres, annuaireByUai, optionByUai) {
   });
 }
 
-module.exports = { buildFeatures };
+export function duplicateByUai(features) {
+  const map = new Map();
+  for (const f of features) {
+    const uai = f?.properties?.uai;
+    if (!uai) continue;
+
+    if (!map.has(uai)) map.set(uai, f);
+  }
+  return [...map.values()];
+}
+
+

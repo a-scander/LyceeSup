@@ -3,12 +3,100 @@
 <head>
   <meta charset="UTF-8">
   <title>Carte Leaflet</title>
-  <link rel="stylesheet" href="vendor/leaflet/dist/leaflet.css">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="vendor/leaflet/dist/leaflet.css">
   <script src="vendor/leaflet/dist/leaflet.js"></script>
+  <script src="vendor/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+  <script src="vendor/leaflet.markercluster/dist/MarkerCluster.css"></script>
+  <script src="vendor/leaflet.markercluster/dist/MarkerCluster.Default.css"></script>
+
   <script type="module" src="./js/main.js"></script>
 </head>
 <body>
+
+  <!-- Sidebar fixe -->
+  <div class="sidebar">
+    <h2 class="sidebar-title">Filtres</h2>
+
+    <form class="filters">
+      <fieldset class="group">
+        <legend>Type d’établissement</legend>
+    
+        <label class="check">
+          <input type="checkbox" name="public" >
+          Public
+        </label>
+    
+        <label class="check">
+          <input type="checkbox" name="prive" >
+          Privé
+        </label>
+      </fieldset>
+    
+      <fieldset class="group">
+        <legend>Type de lycée</legend>
+    
+        <label class="check">
+          <input type="checkbox" name="professionnel" >
+          Professionnel
+        </label>
+    
+        <label class="check">
+          <input type="checkbox" name="generale" >
+          Général
+        </label>
+
+        <label class="check">
+          <input type="checkbox" name="technologique" >
+          Technologique
+        </label>
+      </fieldset>
+    
+      <fieldset class="group">
+        <legend>Restauration</legend>
+    
+        <label class="check">
+          <input type="checkbox" name="restauration" >
+          Avec restauration
+        </label>
+    
+        <label class="check">
+          <input type="checkbox" name="sans_restauration" >
+          Sans restauration
+        </label>
+      </fieldset>
+    
+      <fieldset class="group">
+        <legend>Hébergement</legend>
+    
+        <label class="check">
+          <input type="checkbox" name="hebergement" >
+          Avec hébergement
+        </label>
+    
+        <label class="check">
+          <input type="checkbox" name="sans_hebergement" >
+          Sans hébergement
+        </label>
+      </fieldset>
+    
+      <fieldset class="group">
+        <legend>Apprentissage</legend>
+    
+        <label class="check">
+          <input type="checkbox" name="apprentissage" >
+          Avec apprentissage
+        </label>
+    
+        <label class="check">
+          <input type="checkbox" name="sans_apprentissage" >
+          Sans apprentissage
+        </label>
+      </fieldset>
+    </form>
+    
+  </div>
+
 
   <div id="map"></div>
 

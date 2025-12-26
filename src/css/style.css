@@ -8,3 +8,71 @@ html, body {
     width: 100%;
   }
   
+  .sidebar{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 350px;
+    height: 100vh;
+    background: #fff;
+    border-right: 1px solid #e6e6e6;
+    padding: 16px;
+    z-index: 1000;
+  }
+  
+
+  
+  @media (max-width: 768px){
+    .sidebar{
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: auto;
+      max-height: 45vh; 
+      border-right: none;
+      border-bottom: 1px solid #e6e6e6;
+    }
+  
+    .map{
+      left: 0;
+      top: 45vh;       
+      height: 55vh;
+    }
+  }
+  /*-------------------------------------------*/
+  .cluster-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #3d77f5; /* bleu */
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+  
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    border: 2px solid white;
+  }
+  .popup-lycee {
+    font-family: system-ui, sans-serif;
+  }
+  
+  .popup-title {
+    margin: 0 0 6px;
+    font-size: 15px;
+  }
+  
+  .popup-row {
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  
+  .popup-lycee a {
+    color: #2563eb;
+    text-decoration: none;
+  }
+  
