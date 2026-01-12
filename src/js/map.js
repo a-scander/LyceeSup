@@ -106,10 +106,6 @@ function buildLyceePopup(props) {
       </div>
 
       <div class="popup-row">
-        <strong>Voies :</strong> ${voies.join(", ") || "—"}
-      </div>
-
-      <div class="popup-row">
         <strong>Contact :</strong><br>
         ${props.telephone ? `📞 ${props.telephone}<br>` : ""}
         ${props.web ? `🌐 <a href="${props.web}" target="_blank">Site web</a>` : ""}
@@ -122,17 +118,17 @@ function buildLyceePopup(props) {
 Vérifie si un lycée (feature GeoJSON) correspond aux filtres sélectionnés.
 ============================================================ */
 function matchesFilters(feature, filters) {
-  const p = feature?.properties;
+  const p = feature?.properties || {};
 
-  const statut = String(p.statut_public_prive ?? ""); 
+  const statut = String(p.statut_public_prive ?? "");
 
   const voie_professionnelle = Number(p.voie_professionnelle ?? 0);
-  const voie_generale        = Number(p.voie_generale ?? 0);        
-  const voie_technologique   = Number(p.voie_technologique ?? 0);   
+  const voie_generale        = Number(p.voie_generale ?? 0);
+  const voie_technologique   = Number(p.voie_technologique ?? 0);
 
-  const hebergement   = Number(p.hebergement ?? 0);   
-  const restauration  = Number(p.restauration ?? 0);  
-  const apprentissage = Number(p.apprentissage ?? 0); 
+  const hebergement   = Number(p.hebergement ?? 0);
+  const restauration  = Number(p.restauration ?? 0);
+  const apprentissage = Number(p.apprentissage ?? 0);
 
   const anyStatut = filters.public || filters.prive;
   const matchStatut = !anyStatut ? true : (
@@ -140,11 +136,13 @@ function matchesFilters(feature, filters) {
     (filters.prive  && statut.includes("Privé"))
   );
 
-  const anyVoie = filters.professionnel || filters.generale || filters.technologique;
+  const selectedVoie = String(filters.voie || "");
+  const anyVoie = selectedVoie !== "";
+
   const matchVoie = !anyVoie ? true : (
-    (filters.professionnel && voie_professionnelle === 1) ||
-    (filters.generale       && voie_generale === 1) ||
-    (filters.technologique  && voie_technologique === 1)
+    (selectedVoie === "professionnel" && voie_professionnelle === 1) ||
+    (selectedVoie === "generale" && voie_generale === 1) ||
+    (selectedVoie === "technologique" && voie_technologique === 1)
   );
 
   const anyHeb = filters.hebergement || filters.sans_hebergement;
@@ -165,7 +163,72 @@ function matchesFilters(feature, filters) {
     (filters.sans_apprentissage && apprentissage === 0)
   );
 
-  return matchStatut && matchVoie && matchHeb && matchRes && matchApp;
+  let matchFormation = true;
+  let matchTaux = true;
+
+  const optionsGen  = (p.optionGenerale || []).map(x => String(x).trim());
+  const optionsTech = (p.optionTechno || []).map(x => String(x).trim().toLowerCase());
+  const optionsPro  = (p.optionPro || []).map(x => String(x).trim().toLowerCase());
+
+  if (selectedVoie === "generale") {
+    const s1 = String(filters.specialite1 || "").trim();
+    const s2 = String(filters.specialite2 || "").trim();
+
+    const anySpec = s1 !== "" || s2 !== "";
+    matchFormation = !anySpec ? true : (
+      (s1 === "" || optionsGen.includes(s1)) &&
+      (s2 === "" || optionsGen.includes(s2))
+    );
+
+    const anyMin = String(filters.tauxMinGeneral || "") !== "";
+    const min = Number(filters.tauxMinGeneral);
+    const taux = p.taux_general?.taux_reu_gnle;
+
+    matchTaux = !anyMin ? true : (typeof taux === "number" && taux >= min);
+  }
+
+  if (selectedVoie === "technologique") {
+    const t = String(filters.techno || "").trim().toLowerCase();
+    matchFormation = (t === "") ? true : optionsTech.includes(t);
+
+    const anyMin = String(filters.tauxMinTechno || "") !== "";
+    const min = Number(filters.tauxMinTechno);
+
+    if (!anyMin) {
+      matchTaux = true;
+    } else {
+      if (t === "") {
+        matchTaux = false;
+      } else {
+        const key = `taux_reu_${t}`;
+        const taux = p.taux_techno?.[key];
+        matchTaux = (typeof taux === "number" && taux >= min);
+      }
+    }
+  }
+
+  if (selectedVoie === "professionnel") {
+    const pr = String(filters.pro || "").trim().toLowerCase();
+    matchFormation = (pr === "") ? true : optionsPro.includes(pr);
+
+    const anyMin = String(filters.tauxMinPro || "") !== "";
+    const min = Number(filters.tauxMinPro);
+
+    if (!anyMin) {
+      matchTaux = true;
+    } else {
+      if (pr === "") {
+        matchTaux = false;
+      } else {
+        const key = `taux_reu_${pr}`;
+        const taux = p.taux_pro?.[key];
+        matchTaux = (typeof taux === "number" && taux >= min);
+      }
+    }
+  }
+
+  return matchStatut && matchVoie && matchHeb && matchRes && matchApp
+      && matchFormation && matchTaux;
 }
 
 

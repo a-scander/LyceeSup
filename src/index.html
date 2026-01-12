@@ -7,8 +7,8 @@
   <link rel="stylesheet" href="vendor/leaflet/dist/leaflet.css">
   <script src="vendor/leaflet/dist/leaflet.js"></script>
   <script src="vendor/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
-  <script src="vendor/leaflet.markercluster/dist/MarkerCluster.css"></script>
-  <script src="vendor/leaflet.markercluster/dist/MarkerCluster.Default.css"></script>
+  <link src="vendor/leaflet.markercluster/dist/MarkerCluster.css">
+  <link src="vendor/leaflet.markercluster/dist/MarkerCluster.Default.css">
   <script type="module" src="./js/main.js"></script>
 </head>
 <body>
@@ -31,24 +31,77 @@
         </label>
       </fieldset>
     
-      <fieldset class="group">
-        <legend>Type de lycée</legend>
-    
-        <label class="check">
-          <input type="checkbox" name="professionnel" >
-          Professionnel
-        </label>
-    
-        <label class="check">
-          <input type="checkbox" name="generale" >
-          Général
+     <fieldset class="group">
+      <legend>Type de lycée</legend>
+
+      <label class="field">
+        <span>Voie</span>
+        <select id="selectVoie" name="voie">
+          <option value="">— Toutes —</option>
+          <option value="generale">Général</option>
+          <option value="technologique">Technologique</option>
+          <option value="professionnel">Professionnel</option>
+        </select>
+      </label>
+    </fieldset>
+
+      <fieldset class="group" id="blocGeneral" style="display:none;">
+        <legend>Voie générale</legend>
+
+        <label class="field">
+          <span>Spécialité 1</span>
+          <select id="selectSpecialite1" name="specialite1">
+            <option value="">— Aucune —</option>
+          </select>
         </label>
 
-        <label class="check">
-          <input type="checkbox" name="technologique" >
-          Technologique
+        <label class="field">
+          <span>Spécialité 2</span>
+          <select id="selectSpecialite2" name="specialite2">
+            <option value="">— Aucune —</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Taux de reussite minimum</span>
+          <input id="tauxMinGeneral" name="tauxMinGeneral" type="number" min="0" max="100" step="1" placeholder="ex: 95">
         </label>
       </fieldset>
+
+      <fieldset class="group" id="blocTechno" style="display:none;">
+        <legend>Voie technologique</legend>
+
+        <label class="field">
+          <span>Série techno</span>
+          <select id="selectTechno" name="techno">
+            <option value="">— Choisir —</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Taux de reussite minimum</span>
+          <input id="tauxMinTechno" name="tauxMinTechno" type="number" min="0" max="100" step="1" placeholder="ex: 95">
+        </label>
+      </fieldset>
+
+      <fieldset class="group" id="blocPro" style="display:none;">
+        <legend>Voie professionnelle</legend>
+
+        <label class="field">
+          <span>Domaine pro</span>
+          <select id="selectPro" name="pro">
+            <option value="">— Choisir —</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Taux de reussite minimum</span>
+          <input id="tauxMinPro" name="tauxMinPro" type="number" min="0" max="100" step="1" placeholder="ex: 90">
+        </label>
+
+      </fieldset>
+
+
     
       <fieldset class="group">
         <legend>Restauration</legend>
@@ -91,6 +144,7 @@
           Sans apprentissage
         </label>
       </fieldset>
+      
     </form>
     <button type="button"  id="resetBtn">
       Réinitialiser
