@@ -91,25 +91,9 @@ export function createLyceesCluster() {
 Fonction qui gère la pop up lors du clique sur les lycées
 ============================================================ */
 function buildLyceePopup(props) {
-  const voies = [];
-
-  if (props.voie_generale === 1) voies.push("Générale");
-  if (props.voie_technologique === 1) voies.push("Technologique");
-  if (props.voie_professionnelle === 1) voies.push("Professionnelle");
-
   return `
     <div class="popup-lycee">
       <h3 class="popup-title">${props.nom_etablissement ?? "Lycée"}</h3>
-
-      <div class="popup-row">
-        <strong>Statut :</strong> ${props.statut_public_prive ?? "—"}
-      </div>
-
-      <div class="popup-row">
-        <strong>Contact :</strong><br>
-        ${props.telephone ? `📞 ${props.telephone}<br>` : ""}
-        ${props.web ? `🌐 <a href="${props.web}" target="_blank">Site web</a>` : ""}
-      </div>
     </div>
   `;
 }
