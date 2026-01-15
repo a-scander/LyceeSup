@@ -14,147 +14,161 @@
 <body>
 
   <div class="sidebar">
-    <h2 class="sidebar-title">Filtres</h2>
 
-    <form class="filters">
-      <fieldset class="group">
-        <legend>Type d’établissement</legend>
-    
-        <label class="check">
-          <input type="checkbox" name="public" >
-          Public
-        </label>
-    
-        <label class="check">
-          <input type="checkbox" name="prive" >
-          Privé
-        </label>
-      </fieldset>
-    
-     <fieldset class="group">
-      <legend>Type de lycée</legend>
-
-      <label class="field">
-        <span>Voie</span>
-        <select id="selectVoie" name="voie">
-          <option value="">— Toutes —</option>
-          <option value="generale">Général</option>
-          <option value="technologique">Technologique</option>
-          <option value="professionnel">Professionnel</option>
-        </select>
-      </label>
-    </fieldset>
-
-      <fieldset class="group" id="blocGeneral" style="display:none;">
-        <legend>Voie générale</legend>
-
-        <label class="field">
-          <span>Spécialité 1</span>
-          <select id="selectSpecialite1" name="specialite1">
-            <option value="">— Aucune —</option>
-          </select>
-        </label>
-
-        <label class="field">
-          <span>Spécialité 2</span>
-          <select id="selectSpecialite2" name="specialite2">
-            <option value="">— Aucune —</option>
-          </select>
-        </label>
-
-        <label class="field">
-          <span>Taux de reussite minimum</span>
-          <input id="tauxMinGeneral" name="tauxMinGeneral" type="number" min="0" max="100" step="1" placeholder="ex: 95">
-        </label>
-      </fieldset>
-
-      <fieldset class="group" id="blocTechno" style="display:none;">
-        <legend>Voie technologique</legend>
-
-        <label class="field">
-          <span>Série techno</span>
-          <select id="selectTechno" name="techno">
-            <option value="">— Choisir —</option>
-          </select>
-        </label>
-
-        <label class="field">
-          <span>Taux de reussite minimum</span>
-          <input id="tauxMinTechno" name="tauxMinTechno" type="number" min="0" max="100" step="1" placeholder="ex: 95">
-        </label>
-      </fieldset>
-
-      <fieldset class="group" id="blocPro" style="display:none;">
-        <legend>Voie professionnelle</legend>
-
-        <label class="field">
-          <span>Domaine pro</span>
-          <select id="selectPro" name="pro">
-            <option value="">— Choisir —</option>
-          </select>
-        </label>
-
-        <label class="field">
-          <span>Taux de reussite minimum</span>
-          <input id="tauxMinPro" name="tauxMinPro" type="number" min="0" max="100" step="1" placeholder="ex: 90">
-        </label>
-
-      </fieldset>
-
-
-    
-      <fieldset class="group">
-        <legend>Restauration</legend>
-    
-        <label class="check">
-          <input type="checkbox" name="restauration" >
-          Avec restauration
-        </label>
-    
-        <label class="check">
-          <input type="checkbox" name="sans_restauration" >
-          Sans restauration
-        </label>
-      </fieldset>
-    
-      <fieldset class="group">
-        <legend>Hébergement</legend>
-    
-        <label class="check">
-          <input type="checkbox" name="hebergement" >
-          Avec hébergement
-        </label>
-    
-        <label class="check">
-          <input type="checkbox" name="sans_hebergement" >
-          Sans hébergement
-        </label>
-      </fieldset>
-    
-      <fieldset class="group">
-        <legend>Apprentissage</legend>
-    
-        <label class="check">
-          <input type="checkbox" name="apprentissage" >
-          Avec apprentissage
-        </label>
-    
-        <label class="check">
-          <input type="checkbox" name="sans_apprentissage" >
-          Sans apprentissage
-        </label>
-      </fieldset>
+  <div class="sidebar-columns">
+  
+    <div class="filters-column">
+      <h2 class="sidebar-title">Filtres</h2>
+      <form class="filters">
+        <fieldset class="group">
+          <legend>Type d’établissement</legend>
       
-    </form>
-    <button type="button"  id="resetBtn">
-      Réinitialiser
-    </button>
-    
-  </div>
+          <label class="check">
+            <input type="checkbox" name="public" >
+            Public
+          </label>
+      
+          <label class="check">
+            <input type="checkbox" name="prive" >
+            Privé
+          </label>
+        </fieldset>
+      
+      <fieldset class="group">
+        <legend>Type de lycée</legend>
 
+        <label class="field">
+          <span>Voie</span>
+          <select id="selectVoie" name="voie">
+            <option value="">— Toutes —</option>
+            <option value="generale">Général</option>
+            <option value="technologique">Technologique</option>
+            <option value="professionnel">Professionnel</option>
+          </select>
+        </label>
+      </fieldset>
+
+        <fieldset class="group" id="blocGeneral" style="display:none;">
+          <legend>Voie générale</legend>
+
+          <label class="field">
+            <span>Spécialité 1</span>
+            <select id="selectSpecialite1" name="specialite1">
+              <option value="">— Aucune —</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Spécialité 2</span>
+            <select id="selectSpecialite2" name="specialite2">
+              <option value="">— Aucune —</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Taux de reussite minimum</span>
+            <input id="tauxMinGeneral" name="tauxMinGeneral" type="number" min="0" max="100" step="1" placeholder="ex: 95">
+          </label>
+        </fieldset>
+
+        <fieldset class="group" id="blocTechno" style="display:none;">
+          <legend>Voie technologique</legend>
+
+          <label class="field">
+            <span>Série techno</span>
+            <select id="selectTechno" name="techno">
+              <option value="">— Choisir —</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Taux de reussite minimum</span>
+            <input id="tauxMinTechno" name="tauxMinTechno" type="number" min="0" max="100" step="1" placeholder="ex: 95">
+          </label>
+        </fieldset>
+
+        <fieldset class="group" id="blocPro" style="display:none;">
+          <legend>Voie professionnelle</legend>
+
+          <label class="field">
+            <span>Domaine pro</span>
+            <select id="selectPro" name="pro">
+              <option value="">— Choisir —</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Taux de reussite minimum</span>
+            <input id="tauxMinPro" name="tauxMinPro" type="number" min="0" max="100" step="1" placeholder="ex: 90">
+          </label>
+
+        </fieldset>
+
+
+      
+        <fieldset class="group">
+          <legend>Restauration</legend>
+      
+          <label class="check">
+            <input type="checkbox" name="restauration" >
+            Avec restauration
+          </label>
+      
+          <label class="check">
+            <input type="checkbox" name="sans_restauration" >
+            Sans restauration
+          </label>
+        </fieldset>
+      
+        <fieldset class="group">
+          <legend>Hébergement</legend>
+      
+          <label class="check">
+            <input type="checkbox" name="hebergement" >
+            Avec hébergement
+          </label>
+      
+          <label class="check">
+            <input type="checkbox" name="sans_hebergement" >
+            Sans hébergement
+          </label>
+        </fieldset>
+      
+        <fieldset class="group">
+          <legend>Apprentissage</legend>
+      
+          <label class="check">
+            <input type="checkbox" name="apprentissage" >
+            Avec apprentissage
+          </label>
+      
+          <label class="check">
+            <input type="checkbox" name="sans_apprentissage" >
+            Sans apprentissage
+          </label>
+        </fieldset>
+        
+      </form>
+      <button type="button" id="resetBtn">
+        Réinitialiser
+      </button>
+    </div>
+
+    <div class="list-column">
+      <h2 class="sidebar-title">Lycées affichés</h2>
+
+      <ul id="lycees-list">
+        <li class="placeholder">Aucun lycée affiché</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
 
   <div id="map"></div>
+  <button id="locateBtn" class="locate-btn" title="Revenir à ma position">
+    📍
+  </button>
 
-  
 </body>
 </html>
