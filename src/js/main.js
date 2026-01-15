@@ -1,4 +1,4 @@
-import { initMap, renderLycees } from "./map.js";
+import { initMap, renderLycees, getUserLatLng } from "./map.js";
 import { loadGeoJSON } from "./data.js";
 import {resetFilters,initOptionDropdowns, updateVoieBlocks,resetFormationFields} from "./ui.js"
 
@@ -31,19 +31,30 @@ window.onload = async () => {
   const geojson = await loadGeoJSON("../data/lycees.geojson");
   initOptionDropdowns(geojson);
   updateVoieBlocks();
-  renderLycees(geojson, getFilters());
+  renderLycees(geojson, getFilters(), map);
 
   document.querySelector(".filters").addEventListener("change", (e) => {
     if (e.target.id === "selectVoie") {
       resetFormationFields();
       updateVoieBlocks();
     } 
-    renderLycees(geojson, getFilters());
+    renderLycees(geojson, getFilters(), map);
   });
 
   document.getElementById("resetBtn").addEventListener("click", () => {
     resetFilters();
     updateVoieBlocks();
-    renderLycees(geojson, getFilters());
+    renderLycees(geojson, getFilters(), map);
+  });
+
+  document.getElementById("locateBtn").addEventListener("click", () => {
+    const userPos = getUserLatLng();
+
+    if (!userPos) {
+      alert("Position non disponible");
+      return;
+    }
+
+    map.setView(userPos, 15);
   });
 };

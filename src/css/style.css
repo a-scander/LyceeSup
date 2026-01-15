@@ -1,35 +1,93 @@
 html, body {
     height: 100%;
     margin: 0;
+    width: 100%;
+    display: flex;
   }
   
   #map {
     height: 100%;
-    width: 100%;
+    width: 50%;
   }
   
   .sidebar{
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 350px;
+    width: 50%;
     height: 100vh;
     background: #fff;
     border-right: 1px solid #e6e6e6;
     padding: 16px;
-    z-index: 1000;
+    overflow-y: auto;
+    box-sizing: border-box;
+  }
+
+  .sidebar-columns {
+    display: flex;
+    height: 100%;
+}
+
+  .filters-column {
+    width: 260px;
+    padding: 1rem;
+    overflow-y: auto;
+    border-right: 1px solid #eee;
+  }
+
+
+  .list-column {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    background: #fafafa;
+  }
+
+  /* Liste */
+  #lycees-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .lycee-item {
+    padding: 0.5rem;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+  }
+
+  .lycee-item:hover {
+    background-color: #eaeaea;
+  }
+
+  .placeholder {
+    color: #888;
+    font-style: italic;
   }
   
+  .locate-btn {
+    position: fixed;
+    bottom: 100px;
+    right: 5px;
+    z-index: 1100;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: none;
+    background: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  .locate-btn:hover {
+    background: #f0f0f0;
+  }
 
   
   @media (max-width: 768px){
     .sidebar{
-      position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: auto;
-      max-height: 45vh; 
       border-right: none;
       border-bottom: 1px solid #e6e6e6;
     }
