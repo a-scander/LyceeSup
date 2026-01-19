@@ -10,7 +10,9 @@ const PARIS_DEFAULT = {
     latlng: [48.8566, 2.3522],
     zoom: 13
   };
-  
+
+const LIST_STEP = 30;
+
 
 /* ============================================================
 VARIABLES
@@ -18,6 +20,8 @@ VARIABLES
 let lyceesCluster;
 let userLatLng = null;
 let lyceesAffiches = [];
+let listLimit = 30;
+
 
 /* ============================================================
 Fonction qui initialise la carte
@@ -108,6 +112,7 @@ function buildLyceePopup(props) {
       <h3 class="popup-title">${props.nom_etablissement ?? "Lycée"}</h3>
     </div>
   `;
+  
 }
 
 /* ============================================================
@@ -142,49 +147,32 @@ function buildCardLyceeList(props) {
 /* ============================================================
 Fonction qui affiche la liste des lycées présents sur la carte
 ============================================================ */
-function updateLyceesList(map) {
+function updateLyceesList(map, filters) {
+  
   const ul = document.getElementById("lycees-list");
+  const countEl = document.getElementById("lycees-count");
+  const loadMoreBtn = document.getElementById("loadMoreBtn");
+
   ul.innerHTML = "";
 
-  if (!map) return;
+  const total = lyceesAffiches.length;
+  if (countEl) countEl.textContent = String(total);
 
-  const bounds = map.getBounds();
-
-  const lyceesVisibles = lyceesAffiches.filter(l =>
-    bounds.contains([l.lat, l.lng])
-  );
-
-  if (lyceesVisibles.length === 0) {
-    ul.innerHTML = `<li class="placeholder">Aucun lycée visible</li>`;
+  if (total === 0) {
+    ul.innerHTML = `<li class="placeholder">Aucun lycée affiché</li>`;
+    if (loadMoreBtn) loadMoreBtn.style.display = "none";
     return;
   }
+  const sorted = sortLycees(lyceesAffiches, filters);
 
-  lyceesVisibles.sort((a, b) => {
-      if (a.distanceKm == null) return 1;
-      if (b.distanceKm == null) return -1;
-      return a.distanceKm - b.distanceKm;
-    });
-  
-  const total = lyceesVisibles.length;
+  const shown = sorted.slice(0, listLimit);
 
-  const MAX = 30;
-  const lyceesAffichesList =
-    total > MAX ? lyceesVisibles.slice(0, MAX) : lyceesVisibles;
-
-  lyceesAffichesList.forEach(l => {
+  shown.forEach(l => {
     const li = document.createElement("li");
-    li.className = "lycee-item popup-lycee"; 
+    li.className = "lycee-item popup-lycee";
 
-    
-    li.innerHTML = buildCardLyceeList({
-      nom_etablissement: l.nom_etablissement,
-      distanceKm: l.distanceKm,
-      statut_public_prive: l.statut_public_prive,
-      telephone: l.telephone,
-      web: l.web
-    });
+    li.innerHTML = buildCardLyceeList(l);
 
-    // clic → centre carte + ouvre popup
     li.onclick = () => {
       map.setView([l.lat, l.lng], 16);
       l.marker.openPopup();
@@ -192,6 +180,65 @@ function updateLyceesList(map) {
 
     ul.appendChild(li);
   });
+
+  if (loadMoreBtn) {
+    if (listLimit < total) {
+      loadMoreBtn.style.display = "";
+      loadMoreBtn.textContent = `Afficher plus (${Math.min(LIST_STEP, total - listLimit)} suivants)`;
+    } else {
+      loadMoreBtn.style.display = "none";
+    }
+  }
+}
+
+function sortLycees(lycees, filters) {
+  const profil = filters?.profil || "equilibre";
+
+  const distances = lycees
+    .map(l => (typeof l.distanceKm === "number" ? l.distanceKm : null))
+    .filter(v => v !== null);
+
+  const maxDist = distances.length ? Math.max(...distances) : 1;
+
+  const getScore = (l) => {
+    const voie = filters?.voie || "";
+    if (voie === "generale") return typeof l.score_general === "number" ? l.score_general : null;
+    if (voie === "technologique") return typeof l.score_techno === "number" ? l.score_techno : null;
+    if (voie === "professionnel") return typeof l.score_pro === "number" ? l.score_pro : null;
+    return typeof l.perf_score === "number" ? l.perf_score : null;
+  };
+
+  return [...lycees].sort((a, b) => {
+    const distA = typeof a.distanceKm === "number" ? a.distanceKm : Infinity;
+    const distB = typeof b.distanceKm === "number" ? b.distanceKm : Infinity;
+
+    const scoreAraw = getScore(a);
+    const scoreBraw = getScore(b);
+
+    const scoreA = typeof scoreAraw === "number" ? scoreAraw : -Infinity;
+    const scoreB = typeof scoreBraw === "number" ? scoreBraw : -Infinity;
+
+    if (profil === "proximite") {
+      return distA - distB;
+    }
+
+    if (profil === "performance") {
+      return scoreB - scoreA;
+    }
+
+    const perfA = scoreA === -Infinity ? 0 : scoreA / 100;
+    const perfB = scoreB === -Infinity ? 0 : scoreB / 100;
+    const proxA = distA === Infinity ? 0 : 1 - Math.min(distA / maxDist, 1);
+    const proxB = distB === Infinity ? 0 : 1 - Math.min(distB / maxDist, 1);
+    const mixA = 0.4 * perfA + 0.6 * proxA;
+    const mixB = 0.4 * perfB + 0.6 * proxB;
+    return mixB - mixA; 
+  });
+}
+
+export function loadMoreLycees(map, filters) {
+  listLimit += LIST_STEP;
+  updateLyceesList(map, filters);
 }
 
 
@@ -201,115 +248,132 @@ Vérifie si un lycée (feature GeoJSON) correspond aux filtres sélectionnés.
 function matchesFilters(feature, filters) {
   const p = feature?.properties || {};
 
-  const statut = String(p.statut_public_prive ?? "");
+  const toNum01 = (v) => (Number(v) === 1 ? 1 : 0);
+  const norm = (s) => String(s ?? "").trim();
+  const normLower = (s) => norm(s).toLowerCase();
 
-  const voie_professionnelle = Number(p.voie_professionnelle ?? 0);
-  const voie_generale        = Number(p.voie_generale ?? 0);
-  const voie_technologique   = Number(p.voie_technologique ?? 0);
+  const passRadio01 = (choice, value01) => {
+    // choice: "" | "avec" | "sans"
+    if (!choice) return true;
+    const v = value01 === 1;
+    return choice === "avec" ? v : !v;
+  };
 
-  const hebergement   = Number(p.hebergement ?? 0);
-  const restauration  = Number(p.restauration ?? 0);
-  const apprentissage = Number(p.apprentissage ?? 0);
+  // -----------------------
+  // 1) Filtres globaux (radios)
+  // -----------------------
+  const statut = norm(p.statut_public_prive);
+  const matchStatut =
+    !filters.statut ||
+    (filters.statut === "public" && statut.includes("Public")) ||
+    (filters.statut === "prive" && statut.includes("Privé"));
 
-  const anyStatut = filters.public || filters.prive;
-  const matchStatut = !anyStatut ? true : (
-    (filters.public && statut.includes("Public")) ||
-    (filters.prive  && statut.includes("Privé"))
-  );
+  const matchRestauration = passRadio01(filters.restauration, toNum01(p.restauration));
+  const matchHebergement = passRadio01(filters.hebergement, toNum01(p.hebergement));
+  const matchApprentissage = passRadio01(filters.apprentissage, toNum01(p.apprentissage));
 
-  const selectedVoie = String(filters.voie || "");
-  const anyVoie = selectedVoie !== "";
+  const voieG = toNum01(p.voie_generale);
+  const voieT = toNum01(p.voie_technologique);
+  const voieP = toNum01(p.voie_professionnelle);
 
-  const matchVoie = !anyVoie ? true : (
-    (selectedVoie === "professionnel" && voie_professionnelle === 1) ||
-    (selectedVoie === "generale" && voie_generale === 1) ||
-    (selectedVoie === "technologique" && voie_technologique === 1)
-  );
+  const matchVoie =
+    !filters.voie ||
+    (filters.voie === "generale" && voieG === 1) ||
+    (filters.voie === "technologique" && voieT === 1) ||
+    (filters.voie === "professionnel" && voieP === 1);
 
-  const anyHeb = filters.hebergement || filters.sans_hebergement;
-  const matchHeb = !anyHeb ? true : (
-    (filters.hebergement && hebergement === 1) ||
-    (filters.sans_hebergement && hebergement === 0)
-  );
+  if (!(matchStatut && matchRestauration && matchHebergement && matchApprentissage && matchVoie)) {
+    return false;
+  }
 
-  const anyRes = filters.restauration || filters.sans_restauration;
-  const matchRes = !anyRes ? true : (
-    (filters.restauration && restauration === 1) ||
-    (filters.sans_restauration && restauration === 0)
-  );
+  // UX: pas d'apprentissage en voie générale
+  if (filters.voie === "generale" && filters.apprentissage === "avec") {
+    return false;
+  }
 
-  const anyApp = filters.apprentissage || filters.sans_apprentissage;
-  const matchApp = !anyApp ? true : (
-    (filters.apprentissage && apprentissage === 1) ||
-    (filters.sans_apprentissage && apprentissage === 0)
-  );
+  // -----------------------
+  // 2) Données options
+  // -----------------------
+  const optionsGen = (p.optionGenerale || []).map(norm);
+  const optionsTech = (p.optionTechno || []).map(normLower);
+  const optionsPro = (p.optionPro || []).map(normLower);
 
-  let matchFormation = true;
-  let matchTaux = true;
+  // Si voie = "toutes", on n'applique pas les filtres spécifiques de voie
+  if (!filters.voie) return true;
 
-  const optionsGen  = (p.optionGenerale || []).map(x => String(x).trim());
-  const optionsTech = (p.optionTechno || []).map(x => String(x).trim().toLowerCase());
-  const optionsPro  = (p.optionPro || []).map(x => String(x).trim().toLowerCase());
+  // -----------------------
+  // 3) Voie générale (options ET + taux global)
+  // -----------------------
+  if (filters.voie === "generale") {
+    const selected = (filters.specialitesGeneral || []).map(norm);
 
-  if (selectedVoie === "generale") {
-    const s1 = String(filters.specialite1 || "").trim();
-    const s2 = String(filters.specialite2 || "").trim();
+    const okOptions = selected.length === 0 ? true : selected.every((s) => optionsGen.includes(s));
 
-    const anySpec = s1 !== "" || s2 !== "";
-    matchFormation = !anySpec ? true : (
-      (s1 === "" || optionsGen.includes(s1)) &&
-      (s2 === "" || optionsGen.includes(s2))
-    );
+    const needMin = String(filters.tauxMinGeneral ?? "") !== "";
+    if (!needMin) return okOptions;
 
-    const anyMin = String(filters.tauxMinGeneral || "") !== "";
     const min = Number(filters.tauxMinGeneral);
     const taux = p.taux_general?.taux_reu_gnle;
 
-    matchTaux = !anyMin ? true : (typeof taux === "number" && taux >= min);
+    const okTaux = typeof taux === "number" && taux >= min;
+    return okOptions && okTaux;
   }
 
-  if (selectedVoie === "technologique") {
-    const t = String(filters.techno || "").trim().toLowerCase();
-    matchFormation = (t === "") ? true : optionsTech.includes(t);
+  // -----------------------
+  // 4) Voie technologique (options ET + taux "au moins une")
+  // -----------------------
+  if (filters.voie === "technologique") {
+    const selected = (filters.specialitesTechno || []).map(normLower);
 
-    const anyMin = String(filters.tauxMinTechno || "") !== "";
+    // options: toutes les séries cochées doivent être présentes
+    const okOptions = selected.length === 0 ? true : selected.every((code) => optionsTech.includes(code));
+
+    const needMin = String(filters.tauxMinTechno ?? "") !== "";
+    if (!needMin) return okOptions;
+
     const min = Number(filters.tauxMinTechno);
 
-    if (!anyMin) {
-      matchTaux = true;
-    } else {
-      if (t === "") {
-        matchTaux = false;
-      } else {
-        const key = `taux_reu_${t}`;
-        const taux = p.taux_techno?.[key];
-        matchTaux = (typeof taux === "number" && taux >= min);
-      }
-    }
+    // si aucune cochée => tester toutes les séries du lycée
+    const seriesToTest = selected.length ? selected : optionsTech;
+
+    // taux: au moins une série testée doit être >= min
+    const okTaux = seriesToTest.some((code) => {
+      const key = `taux_reu_${code}`;
+      const taux = p.taux_techno?.[key];
+      return typeof taux === "number" && taux >= min;
+    });
+
+    return okOptions && okTaux;
   }
 
-  if (selectedVoie === "professionnel") {
-    const pr = String(filters.pro || "").trim().toLowerCase();
-    matchFormation = (pr === "") ? true : optionsPro.includes(pr);
+  // -----------------------
+  // 5) Voie professionnelle (options ET + taux "au moins une")
+  // -----------------------
+  if (filters.voie === "professionnel") {
+    const selected = (filters.specialitesPro || []).map(normLower);
 
-    const anyMin = String(filters.tauxMinPro || "") !== "";
+    // options: tous les domaines cochés doivent être présents
+    const okOptions = selected.length === 0 ? true : selected.every((code) => optionsPro.includes(code));
+
+    const needMin = String(filters.tauxMinPro ?? "") !== "";
+    if (!needMin) return okOptions;
+
     const min = Number(filters.tauxMinPro);
 
-    if (!anyMin) {
-      matchTaux = true;
-    } else {
-      if (pr === "") {
-        matchTaux = false;
-      } else {
-        const key = `taux_reu_${pr}`;
-        const taux = p.taux_pro?.[key];
-        matchTaux = (typeof taux === "number" && taux >= min);
-      }
-    }
+    // si aucune cochée => tester tous les domaines du lycée
+    const domainsToTest = selected.length ? selected : optionsPro;
+
+    // taux: au moins un domaine testé doit être >= min
+    const okTaux = domainsToTest.some((code) => {
+      const key = `taux_reu_${code}`;
+      const taux = p.taux_pro?.[key];
+      return typeof taux === "number" && taux >= min;
+    });
+
+    return okOptions && okTaux;
   }
 
-  return matchStatut && matchVoie && matchHeb && matchRes && matchApp
-      && matchFormation && matchTaux;
+  return true;
 }
 
 
@@ -330,10 +394,14 @@ export function renderLycees(geojsonData, filters, map) {
       if (userLatLng) {
         distanceKm = calculateDistanceKm(userLatLng, latlng);
       }
-
+      const props = { ...feature.properties, distanceKm };
       const marker = L.marker(latlng, { icon: schoolIcon });    
-      marker.bindPopup(buildLyceePopup({...feature.properties, distanceKm: distanceKm}));
-
+      marker.bindPopup(buildLyceePopup(props));
+      marker.on("popupopen", () => {
+        console.groupCollapsed(`[LYCÉE] ${props.nom_etablissement ?? "—"} (${props.uai ?? "—"})`);
+        console.log(props);
+        console.groupEnd();
+      });
       lyceesAffiches.push({
         ...feature.properties,
         lat: latlng.lat,
@@ -346,10 +414,9 @@ export function renderLycees(geojsonData, filters, map) {
   });
 
   lyceesCluster.addLayer(layer);
+  listLimit = LIST_STEP;
+  updateLyceesList(map, filters);
 
-  updateLyceesList(map);
-
-  map.on("moveend", () => updateLyceesList(map));
 }
 
 export function getUserLatLng() {

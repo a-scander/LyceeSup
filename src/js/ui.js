@@ -30,22 +30,84 @@ const PRO_LABELS = {
 Fonction pour réinitialiser les filtres
 ============================================================ */
 export function resetFilters() {
-  document.querySelectorAll('.sidebar input[type="checkbox"]').forEach(cb => cb.checked = false);
+  const setChecked = (selector) => {
+    const el = document.querySelector(selector);
+    if (el) el.checked = true;
+  };
 
-  [
-    "selectVoie",
-    "selectSpecialite1", "selectSpecialite2",
-    "selectTechno", "selectPro",
-    "tauxMinGeneral", "tauxMinTechno", "tauxMinPro"
-  ].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = "";
-  });
+  setChecked('input[name="voie"][value=""]');
+  setChecked('input[name="profil"][value="equilibre"]');
+  setChecked('input[name="statut"][value=""]');
+  setChecked('input[name="restauration"][value=""]');
+  setChecked('input[name="hebergement"][value=""]');
+  setChecked('input[name="apprentissage"][value=""]');
 
-  updateVoieBlocks();
+  resetFormationFields();
 }
 
-  
+/*==============================================================================
+Affiche ou masque les blocs (Général / Techno / Pro) selon la voie sélectionnée
+================================================================================ */
+export function updateVoieBlocks() {
+  const voie = document.querySelector('input[name="voie"]:checked')?.value || "";
+
+  const blocGeneral = document.getElementById("blocGeneral");
+  const blocTechno  = document.getElementById("blocTechno");
+  const blocPro     = document.getElementById("blocPro");
+
+  if (blocGeneral) blocGeneral.style.display = (voie === "generale") ? "" : "none";
+  if (blocTechno)  blocTechno.style.display  = (voie === "technologique") ? "" : "none";
+  if (blocPro)     blocPro.style.display     = (voie === "professionnel") ? "" : "none";
+}
+/* ================================================================
+Génère dynamiquement une liste de checkbox à partir d'un tableau
+=================================================================== */
+function fillCheckboxList(containerEl, items, name) {
+  if (!containerEl) return;
+
+  containerEl.innerHTML = "";
+
+  for (const item of items) {
+    const label = document.createElement("label");
+    label.className = "check";
+
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.name = name;       
+    input.value = item;
+
+    label.appendChild(input);
+    label.appendChild(document.createTextNode(item));
+
+    containerEl.appendChild(label);
+  }
+}
+/* ================================================================
+Génère une liste de checkbox à partir d'une liste de codes
+=================================================================== */
+function fillCheckboxListWithLabels(containerEl, codes, name, labelsMap) {
+  if (!containerEl) return;
+
+  containerEl.innerHTML = "";
+
+  for (const code of codes) {
+    const labelText = labelsMap?.[code] ?? code;
+
+    const label = document.createElement("label");
+    label.className = "check";
+
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.name = name;
+    input.value = code; 
+
+    label.appendChild(input);
+    label.appendChild(document.createTextNode(labelText)); 
+
+    containerEl.appendChild(label);
+  }
+}
+
 /* ======================================================================
 Extraire listes uniques depuis le GeoJSON de chaque options et filières
 ========================================================================= */
@@ -69,91 +131,53 @@ function extractOptionLists(geojson) {
   };
 }
 
-/* ============================================================
-Remplir un select
-============================================================ */
-function fillSelect(selectEl, items, placeholder) {
-  if (!selectEl) return;
 
-  selectEl.innerHTML = "";
-  selectEl.appendChild(new Option(placeholder, ""));
-
-  for (const item of items) {
-    selectEl.appendChild(new Option(item, item));
-  }
-}
-
-/* ============================================================
-Remplir un select avec traduction du code des données
-============================================================ */
-function fillSelectWithLabels(selectEl, codes, labelsMap, placeholder) {
-  if (!selectEl) return;
-  selectEl.innerHTML = "";
-  selectEl.appendChild(new Option(placeholder, ""));
-
-  codes.forEach(code => {
-    const label = labelsMap[code] ?? code; 
-    selectEl.appendChild(new Option(label, code)); 
-  });
-}
 /* ============================================================
 Init dropdowns dynamiques
 ============================================================ */
 export function initOptionDropdowns(geojson) {
   const lists = extractOptionLists(geojson);
 
-  fillSelect(
-    document.getElementById("selectSpecialite1"),
+  fillCheckboxList(
+    document.getElementById("specialitesGeneralList"),
     lists.general,
-    "Toutes"
+    "specialitesGeneral"
   );
 
-  fillSelect(
-    document.getElementById("selectSpecialite2"),
-    lists.general,
-    "Toutes"
-  );
-
-  fillSelectWithLabels(
-    document.getElementById("selectTechno"),
+  fillCheckboxListWithLabels(
+    document.getElementById("specialitesTechnoList"),
     lists.techno,
-    TECHNO_LABELS,
-    "— Toutes les filières techno —"
+    "specialitesTechno",
+    TECHNO_LABELS
   );
-  
-  fillSelectWithLabels(
-    document.getElementById("selectPro"),
+
+  fillCheckboxListWithLabels(
+    document.getElementById("specialitesProList"),
     lists.pro,
-    PRO_LABELS,
-    "— Toutes les filières pro —"
+    "specialitesPro",
+    PRO_LABELS
   );
-}
 
-/*==============================================================================
-Affiche ou masque les blocs (Général / Techno / Pro) selon la voie sélectionnée
-================================================================================ */
-export function updateVoieBlocks() {
-  const voie = document.getElementById("selectVoie")?.value || "";
-
-  const blocGeneral = document.getElementById("blocGeneral");
-  const blocTechno = document.getElementById("blocTechno");
-  const blocPro = document.getElementById("blocPro");
-
-  if (blocGeneral) blocGeneral.style.display = (voie === "generale") ? "" : "none";
-  if (blocTechno)  blocTechno.style.display  = (voie === "technologique") ? "" : "none";
-  if (blocPro)     blocPro.style.display     = (voie === "professionnel") ? "" : "none";
 }
 
 /*=====================================================================================
 Réinitialise les champs liés aux formations et aux taux (appelé quand la voie change)
 ======================================================================================= */
 export function resetFormationFields() {
-  [
-    "selectSpecialite1", "selectSpecialite2", "tauxMinGeneral",
-    "selectTechno", "tauxMinTechno",
-    "selectPro", "tauxMinPro"
-  ].forEach(id => {
+  ["tauxMinGeneral", "tauxMinTechno", "tauxMinPro"].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = "";
   });
+
+  [
+    "specialitesGeneral",
+    "specialitesTechno",
+    "specialitesPro"
+  ].forEach(groupName => {
+    document
+      .querySelectorAll(`input[type="checkbox"][name="${groupName}"]`)
+      .forEach(cb => (cb.checked = false));
+  });
+  updateVoieBlocks();
 }
+

@@ -1,44 +1,217 @@
+:root {
+  --greenMain: #14B8A6;
+  --backgroundFilter : #F9FAFB; 
+  --greyWrite : #878a8e;
+}
+
+
+
 html, body {
     height: 100%;
     margin: 0;
     width: 100%;
     display: flex;
+    font-family: 'LTInternet', Arial, sans-serif;
+
   }
   
   #map {
     height: 100%;
-    width: 50%;
+    width: 100%;
   }
   
-  .sidebar{
-    width: 50%;
-    height: 100vh;
-    background: #fff;
-    border-right: 1px solid #e6e6e6;
-    padding: 16px;
-    overflow-y: auto;
-    box-sizing: border-box;
+ 
+
+  .filter-icon {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
   }
 
-  .sidebar-columns {
+  @font-face {
+    font-family: 'LTInternet';
+    src: url('assets/fonts/LTInternet-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'LTInternet';
+    src: url('assets/fonts/LTInternet-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: var(--greenMain);
+    cursor: pointer;
+  }
+ 
+  .sidebar .group{
+    border: none;                 /* enlève le style fieldset par défaut */
+    background: #ffffff;          /* carte blanche */
+    border-radius: 12px;          /* arrondi comme sur ton image */
+    padding: 14px 16px 12px;      /* espace intérieur */
+    margin: 0 0 14px 0;           /* espace entre les cartes */
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06); /* ombre douce */
+  }
+  
+
+/* Titre dans la carte */
+.sidebar .group-title{
+  margin: 0 0 10px 0;
+  font-weight: 700;
+  font-size: 13px;
+  color: #111827;
+}
+  .sidebar .check {
     display: flex;
-    height: 100%;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin: 6px 0;   /* espace vertical entre les lignes */
+  }
+  .actions{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  
+  .btn{
+    width: 100%;
+    padding: 12px 14px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: transform 0.15s, filter 0.15s;
+  }
+  
+  .btn:hover{
+    filter: brightness(0.95);
+    transform: translateY(-1px);
+  }
+  
+  .btn:active{
+    transform: translateY(0px);
+  }
+  
+  .btn-icon{
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+  }
+  
+  .btn-primary{
+    background: var(--greenMain);
+    color: #fff;
+    box-shadow: 0 10px 22px rgba(20, 184, 166, 0.25);
+  }
+  
+  .filters label {
+    font-size: 12px; /* ajuste : 12px, 15px, 16px, etc. */
+    color : var(--greyWrite);
+    font-weight: 600;
+
+  }
+  /*---------------------------------------------------------------*/
+  /* Le conteneur popup au-dessus de la carte */
+.results-popup{
+  position: absolute;
+  z-index: 999;          /* au-dessus de Leaflet */
+  top: 80px;
+  left: 340px;           /* ajuste selon ta sidebar */
+  width: 360px;
+  max-height: 70vh;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(0,0,0,.18);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-  .filters-column {
-    width: 260px;
+/* Header */
+.results-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 12px;
+  border-bottom: 1px solid rgba(0,0,0,.08);
+  background: #fff;
+}
+
+.results-title{
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Bouton chevron */
+.results-toggle{
+  width: 34px;
+  height: 34px;
+  border: 0;
+  background: rgba(0,0,0,.06);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* Body scrollable */
+.results-body{
+  overflow: auto;
+  max-height: 60vh;
+}
+
+/* Quand c'est plié */
+.results-popup.is-collapsed .results-body{
+  display: none;
+}
+
+.results-popup.is-collapsed .results-toggle{
+  transform: rotate(-90deg); /* chevron tourne */
+}
+
+/* Liste */
+#lycees-list{
+  list-style: none;
+  margin: 0;
+  padding: 10px;
+}
+
+#lycees-list li{
+  padding: 10px 10px;
+}
+
+#lycees-list li + li{
+  margin-top: 8px;
+  border-top: 1px solid rgba(0,0,0,.06);
+  border-radius: 0;
+}
+
+  /* ------------------------------------------------------ */
+
+
+  .sidebar {
+    width: 350px;
     padding: 1rem;
     overflow-y: auto;
+    overflow-x: visible !important;
+
     border-right: 1px solid #eee;
   }
 
 
-  .list-column {
-    flex: 1;
-    padding: 1rem;
-    overflow-y: auto;
-    background: #fafafa;
-  }
 
   /* Liste */
   #lycees-list {
@@ -83,14 +256,7 @@ html, body {
 
   
   @media (max-width: 768px){
-    .sidebar{
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: auto;
-      border-right: none;
-      border-bottom: 1px solid #e6e6e6;
-    }
+    
   
     .map{
       left: 0;
@@ -103,7 +269,7 @@ html, body {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: #3d77f5; /* bleu */
+    background: var(--greenMain); /* bleu */
     color: white;
     font-weight: 700;
     font-size: 14px;
@@ -130,7 +296,66 @@ html, body {
   }
   
   .popup-lycee a {
-    color: #2563eb;
+    color: var(--greenMain);
     text-decoration: none;
+  }
+
+  /* test */
+  .hint {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 6px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--greenMain);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: help;
+  }
+  
+  
+  .hint:focus {
+    outline: 2px solid var(--greenMain);
+    outline-offset: 2px;
+  }
+  .tooltip {
+    position: absolute;
+    bottom: calc(100% + 10px); /* 🔥 au-dessus */
+    left: 50%;
+    transform: translateX(-50%);
+    
+    width: 146px !important;
+    background: var(--greenMain);
+    color: #fff;
+    font-size: 12px;
+    line-height: 1.4;
+    padding: 10px 12px;
+    border-radius: 10px;
+    box-shadow: 0 12px 26px rgba(0,0,0,0.25);
+  
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    z-index: 3000;
+  }
+  
+  
+  .hint:hover .tooltip,
+  .hint:focus .tooltip {
+    opacity: 1;
+    visibility: visible;
+  }
+  .tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px 6px 0 6px;
+    border-style: solid;
+    border-color: var(--greenMain) transparent transparent transparent;
   }
   

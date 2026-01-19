@@ -15,157 +15,251 @@
 
   <div class="sidebar">
 
-  <div class="sidebar-columns">
-  
-    <div class="filters-column">
-      <h2 class="sidebar-title">Filtres</h2>
+ 
+      <h3 class="sidebar-title">
+        <img src="assets/icons/filtre.png" alt="Filtre" class="filter-icon">
+        Filtres de recherche
+      </h3>
+    
       <form class="filters">
-        <fieldset class="group">
-          <legend>Type d’établissement</legend>
-      
+    
+        <div class="group">
+          <div class="group-title">Type d’établissement</div>
+        
           <label class="check">
-            <input type="checkbox" name="public" >
-            Public
+            <input type="radio" name="statut" value="" checked>
+            Indifférent
           </label>
-      
+        
           <label class="check">
-            <input type="checkbox" name="prive" >
-            Privé
+            <input type="radio" name="statut" value="public">
+            Lycée public
           </label>
-        </fieldset>
-      
-      <fieldset class="group">
-        <legend>Type de lycée</legend>
-
-        <label class="field">
-          <span>Voie</span>
-          <select id="selectVoie" name="voie">
-            <option value="">— Toutes —</option>
-            <option value="generale">Général</option>
-            <option value="technologique">Technologique</option>
-            <option value="professionnel">Professionnel</option>
-          </select>
-        </label>
-      </fieldset>
-
-        <fieldset class="group" id="blocGeneral" style="display:none;">
-          <legend>Voie générale</legend>
-
-          <label class="field">
-            <span>Spécialité 1</span>
-            <select id="selectSpecialite1" name="specialite1">
-              <option value="">— Aucune —</option>
-            </select>
-          </label>
-
-          <label class="field">
-            <span>Spécialité 2</span>
-            <select id="selectSpecialite2" name="specialite2">
-              <option value="">— Aucune —</option>
-            </select>
-          </label>
-
-          <label class="field">
-            <span>Taux de reussite minimum</span>
-            <input id="tauxMinGeneral" name="tauxMinGeneral" type="number" min="0" max="100" step="1" placeholder="ex: 95">
-          </label>
-        </fieldset>
-
-        <fieldset class="group" id="blocTechno" style="display:none;">
-          <legend>Voie technologique</legend>
-
-          <label class="field">
-            <span>Série techno</span>
-            <select id="selectTechno" name="techno">
-              <option value="">— Choisir —</option>
-            </select>
-          </label>
-
-          <label class="field">
-            <span>Taux de reussite minimum</span>
-            <input id="tauxMinTechno" name="tauxMinTechno" type="number" min="0" max="100" step="1" placeholder="ex: 95">
-          </label>
-        </fieldset>
-
-        <fieldset class="group" id="blocPro" style="display:none;">
-          <legend>Voie professionnelle</legend>
-
-          <label class="field">
-            <span>Domaine pro</span>
-            <select id="selectPro" name="pro">
-              <option value="">— Choisir —</option>
-            </select>
-          </label>
-
-          <label class="field">
-            <span>Taux de reussite minimum</span>
-            <input id="tauxMinPro" name="tauxMinPro" type="number" min="0" max="100" step="1" placeholder="ex: 90">
-          </label>
-
-        </fieldset>
-
-
-      
-        <fieldset class="group">
-          <legend>Restauration</legend>
-      
+        
           <label class="check">
-            <input type="checkbox" name="restauration" >
+            <input type="radio" name="statut" value="prive">
+            Lycée privé
+          </label>
+        </div>
+    
+        <div class="group">
+          <div class="group-title">Type de lycée</div>
+        
+          <label class="check">
+            <input type="radio" name="voie" value="" checked>
+            Indifférent
+          </label>
+        
+          <label class="check">
+            <input type="radio" name="voie" value="generale">
+            Général
+          </label>
+        
+          <label class="check">
+            <input type="radio" name="voie" value="technologique">
+            Technologique
+          </label>
+        
+          <label class="check">
+            <input type="radio" name="voie" value="professionnel">
+            Professionnel
+          </label>
+        </div>
+        
+    
+        <div id="blocGeneral" style="display:none;">
+          <div class="group">
+
+            <div class="group-title">Options (général)</div>
+                    
+            <div class="field">
+              <div id="specialitesGeneralList"></div>
+            </div>
+
+          </div>
+          
+
+          <div class="group">
+          <label class="field">
+            <div class="group-title">
+              Taux de réussite 
+              <span class="hint" tabindex="0">
+                ?
+                <span class="tooltip" role="tooltip">
+                  Si aucune spécialité n’est cochée, le taux s’applique à l’ensemble de la voie.<br><br>
+                  Si une ou plusieurs spécialités sont cochées, le lycée est gardé si au moins une spécialité cochée atteint ce taux.
+                </span>
+              </span>
+            </div>
+          <input id="tauxMinGeneral" name="tauxMinGeneral" type="number" min="0" max="100" step="1" placeholder="ex: 95">
+          </label>
+          </div>
+        </div>
+        
+    
+        <div id="blocTechno" style="display:none;">
+          <div class="group">
+            <div class="group-title">Séries technologiques</div>
+            <div class="field">
+              <div id="specialitesTechnoList"></div>
+            </div>
+          </div>
+        
+          <div class="group">
+            <div class="field">
+              <div class="group-title">
+                Taux de réussite
+                <span class="hint" tabindex="0">
+                  ?
+                  <span class="tooltip">
+                    Si aucune série technologique n’est cochée, le lycée est gardé si
+                    au moins une série proposée atteint ce taux.<br><br>
+                    Si une ou plusieurs séries sont cochées, le lycée est gardé si
+                    au moins une série cochée atteint ce taux.
+                  </span>
+                </span>
+              </div>
+                            <input id="tauxMinTechno" name="tauxMinTechno" type="number" min="0" max="100" step="1" placeholder="95">
+            </div>
+          </div>
+        </div>
+        
+        <div id="blocPro" style="display:none;">
+          <div class="group">
+            <div class="group-title">Filière professionnelles</div>
+            <div class="field">
+              <div id="specialitesProList"></div>
+            </div>
+          </div>
+        
+          <div class="group">
+            <div class="field">
+              <div class="group-title">
+                Taux de réussite
+                <span class="hint" tabindex="0">
+                  ?
+                  <span class="tooltip">
+                    Si aucun domaine professionnel n’est coché, le lycée est gardé si
+                    au moins un domaine proposé atteint ce taux.<br><br>
+                    Si un ou plusieurs domaines sont cochés, le lycée est gardé si
+                    au moins un domaine coché atteint ce taux.
+                  </span>
+                </span>
+              </div>
+                            <input id="tauxMinPro" name="tauxMinPro" type="number" min="0" max="100" step="1" placeholder="90">
+            </div>
+          </div>
+        </div>
+        
+    
+        <div class="group">
+          <div class="group-title">Restauration</div>
+        
+          <label class="check">
+            <input type="radio" name="restauration" value="" checked>
+            Indifférent
+          </label>
+        
+          <label class="check">
+            <input type="radio" name="restauration" value="avec">
             Avec restauration
           </label>
-      
+        
           <label class="check">
-            <input type="checkbox" name="sans_restauration" >
+            <input type="radio" name="restauration" value="sans">
             Sans restauration
           </label>
-        </fieldset>
-      
-        <fieldset class="group">
-          <legend>Hébergement</legend>
-      
+        </div>
+        
+        <div class="group">
+          <div class="group-title">Hébergement</div>
+        
           <label class="check">
-            <input type="checkbox" name="hebergement" >
+            <input type="radio" name="hebergement" value="" checked>
+            Indifférent
+          </label>
+        
+          <label class="check">
+            <input type="radio" name="hebergement" value="avec">
             Avec hébergement
           </label>
-      
+        
           <label class="check">
-            <input type="checkbox" name="sans_hebergement" >
+            <input type="radio" name="hebergement" value="sans">
             Sans hébergement
           </label>
-        </fieldset>
-      
-        <fieldset class="group">
-          <legend>Apprentissage</legend>
-      
+        </div>
+        
+        <div class="group">
+          <div class="group-title">Apprentissage</div>
+        
           <label class="check">
-            <input type="checkbox" name="apprentissage" >
+            <input type="radio" name="apprentissage" value="" checked>
+            Indifférent
+          </label>
+        
+          <label class="check">
+            <input type="radio" name="apprentissage" value="avec">
             Avec apprentissage
           </label>
-      
+        
           <label class="check">
-            <input type="checkbox" name="sans_apprentissage" >
+            <input type="radio" name="apprentissage" value="sans">
             Sans apprentissage
           </label>
-        </fieldset>
-        
+        </div>
+    
+        <div class="group">
+          <div class="group-title">Profil recherché</div>
+    
+          <label class="check">
+            <input type="radio" name="profil" value="equilibre" checked>
+            Équilibre
+          </label>
+    
+          <label class="check">
+            <input type="radio" name="profil" value="proximite">
+            Proximité
+          </label>
+    
+          <label class="check">
+            <input type="radio" name="profil" value="performance">
+            Performance
+          </label>
+        </div>
+    
       </form>
-      <button type="button" id="resetBtn">
-        Réinitialiser
-      </button>
-    </div>
-
-    <div class="list-column">
-      <h2 class="sidebar-title">Lycées affichés</h2>
-
-      <ul id="lycees-list">
-        <li class="placeholder">Aucun lycée affiché</li>
-      </ul>
-    </div>
-
-  </div>
+    
+      <!-- <div class="actions">
+        <button type="button" id="applyBtn" class="btn btn-primary">
+          <img src="assets/icons/apply.png" alt="" class="btn-icon">
+          Appliquer filtres
+        </button> -->
+      
+        <button type="button" id="resetBtn" class="btn btn-primary">
+          <img src="assets/icons/reset.png" alt="" class="btn-icon">
+          Réinitialiser
+        </button>
+      </div>
+    
 </div>
 
   <div id="map"></div>
+
+  <div id="resultsPopup" class="results-popup">
+    <div class="results-header">
+      <div class="results-title">
+        <span id="lycees-count">0</span> lycées trouvés
+      </div>
+    </div>
+  
+    <div class="results-body">
+      <ul id="lycees-list"></ul>
+      <button id="loadMoreBtn" class="btn btn-primary" style="border-radius: none;" type="button"></button>
+      
+    </div>
+  </div>
+  
   <button id="locateBtn" class="locate-btn" title="Revenir à ma position">
     📍
   </button>

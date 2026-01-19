@@ -1,23 +1,27 @@
-import { initMap, renderLycees, getUserLatLng } from "./map.js";
+import { initMap, renderLycees, getUserLatLng,loadMoreLycees  } from "./map.js";
 import { loadGeoJSON } from "./data.js";
-import {resetFilters,initOptionDropdowns, updateVoieBlocks,resetFormationFields} from "./ui.js"
+import {resetFilters,initOptionDropdowns,resetFormationFields, } from "./ui.js"
 
 const getFilters = () => {
-  const checkboxFilters = Object.fromEntries(
-    [...document.querySelectorAll(".filters input[type=checkbox]")]
-      .map((i) => [i.name, i.checked])
-  );
-
   return {
-    ...checkboxFilters,
+    statut: document.querySelector('input[name="statut"]:checked')?.value || "",
+    restauration: document.querySelector('input[name="restauration"]:checked')?.value || "",
+    hebergement: document.querySelector('input[name="hebergement"]:checked')?.value || "",
+    apprentissage: document.querySelector('input[name="apprentissage"]:checked')?.value || "",
+    voie: document.querySelector('input[name="voie"]:checked')?.value || "",
+    profil: document.querySelector('input[name="profil"]:checked')?.value || "",
 
-    voie: document.getElementById("selectVoie")?.value || "",
+    specialitesGeneral: [
+      ...document.querySelectorAll('input[name="specialitesGeneral"]:checked')
+    ].map(i => i.value),
 
-    specialite1: document.getElementById("selectSpecialite1")?.value || "",
-    specialite2: document.getElementById("selectSpecialite2")?.value || "",
+    specialitesTechno: [
+      ...document.querySelectorAll('input[name="specialitesTechno"]:checked')
+    ].map(i => i.value),
 
-    techno: document.getElementById("selectTechno")?.value || "",
-    pro: document.getElementById("selectPro")?.value || "",
+    specialitesPro: [
+      ...document.querySelectorAll('input[name="specialitesPro"]:checked')
+    ].map(i => i.value),
 
     tauxMinGeneral: document.getElementById("tauxMinGeneral")?.value || "",
     tauxMinTechno: document.getElementById("tauxMinTechno")?.value || "",
@@ -30,22 +34,30 @@ window.onload = async () => {
   const map = initMap();
   const geojson = await loadGeoJSON("../data/lycees.geojson");
   initOptionDropdowns(geojson);
-  updateVoieBlocks();
   renderLycees(geojson, getFilters(), map);
 
+
+
   document.querySelector(".filters").addEventListener("change", (e) => {
-    if (e.target.id === "selectVoie") {
+    if (e.target.name === "voie") {
       resetFormationFields();
-      updateVoieBlocks();
     } 
     renderLycees(geojson, getFilters(), map);
   });
 
+
   document.getElementById("resetBtn").addEventListener("click", () => {
     resetFilters();
-    updateVoieBlocks();
     renderLycees(geojson, getFilters(), map);
   });
+
+
+  document.getElementById("loadMoreBtn")?.addEventListener("click", () => {
+    loadMoreLycees(map, getFilters());
+  });
+  
+
+/////////////////////////////////////////////////////////////////////////////
 
   document.getElementById("locateBtn").addEventListener("click", () => {
     const userPos = getUserLatLng();
