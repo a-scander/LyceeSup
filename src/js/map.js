@@ -65,7 +65,7 @@ function setupGeolocation(map) {
     map.on("locationfound", (e) => {   // Événement déclenché quand la position est trouvée
 
       userLatLng = e.latlng;
-      map.setView(e.latlng, 15);
+      map.setView(e.latlng, 16);
 
       L.marker(e.latlng, { icon: homeIcon })
         .addTo(map)
@@ -212,7 +212,11 @@ function selectLycee(marker, lat, lng, map) {
   marker.setIcon(schoolIconActive);
   activeMarker = marker;
 
-  map.setView([lat, lng], 16);
+  map.flyTo([lat, lng], 16, {
+        duration: 0.8,        
+        easeLinearity: 0.25, 
+        noMoveStart: false    
+      });
   marker.openPopup();
 }
 
@@ -220,7 +224,6 @@ function selectLycee(marker, lat, lng, map) {
 Fonction qui affiche la liste des lycées présents sur la carte
 ============================================================ */
 function updateLyceesList(map, filters) {
-  
   const ul = document.getElementById("lycees-list");
   const countEl = document.getElementById("lycees-count");
   const loadMoreBtn = document.getElementById("loadMoreBtn");
@@ -235,8 +238,8 @@ function updateLyceesList(map, filters) {
     if (loadMoreBtn) loadMoreBtn.style.display = "none";
     return;
   }
-  const sorted = sortLycees(lyceesAffiches, filters);
 
+  const sorted = sortLycees(lyceesAffiches, filters);
   const shown = sorted.slice(0, listLimit);
 
   shown.forEach(l => {
@@ -247,20 +250,28 @@ function updateLyceesList(map, filters) {
 
 
     li.onclick = () => {
-      selectLycee(l.marker, l.lat, l.lng, map);
+      if(l.marker){
+        selectLycee(l.marker, l.lat, l.lng, map);
+      }
     };
 
     ul.appendChild(li);
   });
 
-  if (loadMoreBtn) {
-    if (listLimit < total) {
-      loadMoreBtn.style.display = "";
-      loadMoreBtn.textContent = `Afficher plus (${Math.min(LIST_STEP, total - listLimit)} suivants)`;
-    } else {
-      loadMoreBtn.style.display = "none";
+  let loadingMore = false;
+  ul.onscroll = function() {
+    if (loadingMore) return;
+    
+    const { scrollTop, scrollHeight, clientHeight } = ul;
+
+    if (scrollTop + clientHeight >= scrollHeight - 50) {
+      loadingMore = true;
+      
+      listLimit += LIST_STEP;
+      updateLyceesList(map, filters); 
+      setTimeout(() => { loadingMore = false; }, 500);
     }
-  }
+  };
 }
 
 function sortLycees(lycees, filters) {
