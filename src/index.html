@@ -13,10 +13,16 @@
   <script type="module" src="./js/main.js"></script>
 </head>
 <body>
+  <header class="site-header">
+    <div class="title-container">
+      <img src="assets/icons/logovert.png" alt="Logo école" class="logo-img">
+      <h1>FindSchool</h1>
+    </div>
+    <button class="header-btn">Choisis ton profil</button>
+  </header>
+  <div class="main-layout">
+    <div class="sidebar">
 
-  <div class="sidebar">
-
- 
       <h3 class="sidebar-title">
         <img src="assets/icons/filtre.png" alt="Filtre" class="filter-icon">
         Filtres de recherche
@@ -237,33 +243,29 @@
         </button>
       </div>
     
-</div>
+    <div id="map"></div>
 
-  <div id="map"></div>
-
-  <div id="resultsPopup" class="results-popup ">
-    <div class="results-header">
-      <div class="results-title">
-      <img src="assets/icons/list.png" alt="liste" class="results-icon">
-      <span id="lycees-count">0</span> lycées trouvés
-      <button id="resultsToggle" class="results-toggle" type="button" aria-expanded="true" aria-controls="resultsBody">
-        ▶
-      </button>
-    </div>
-    
-    </div>
-  
-    <div id="resultsBody"  class="results-body">
-      <ul id="lycees-list"></ul>
-      <button id="loadMoreBtn" class="btn btn-primary" style="border-radius: none;" type="button"></button>
+    <div id="resultsPopup" class="results-popup ">
+      <div class="results-header">
+        <div class="results-title">
+        <img src="assets/icons/list.png" alt="liste" class="results-icon">
+        <span id="lycees-count">0</span> lycées trouvés
+        <button id="resultsToggle" class="results-toggle" type="button" aria-expanded="true" aria-controls="resultsBody">
+          ▶
+        </button>
+      </div>
       
+      </div>
+    
+      <div id="resultsBody" class="results-body">
+        <ul id="lycees-list"></ul>
+        
+      </div>
     </div>
+  
+    <button id="locateBtn" class="locate-btn" title="Revenir à ma position">
+      <img src="assets/icons/marqueurvert.png" alt="Ma position" class="locate-icon">
+    </button>
   </div>
-  
-  <button id="locateBtn" class="locate-btn" title="Revenir à ma position">
-    <img src="assets/icons/marqueurvert.png" alt="Ma position" class="locate-icon">
-  </button>
-  
-
 </body>
 </html>

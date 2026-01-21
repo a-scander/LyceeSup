@@ -220,7 +220,6 @@ function selectLycee(marker, lat, lng, map) {
 Fonction qui affiche la liste des lycées présents sur la carte
 ============================================================ */
 function updateLyceesList(map, filters) {
-  
   const ul = document.getElementById("lycees-list");
   const countEl = document.getElementById("lycees-count");
   const loadMoreBtn = document.getElementById("loadMoreBtn");
@@ -235,8 +234,8 @@ function updateLyceesList(map, filters) {
     if (loadMoreBtn) loadMoreBtn.style.display = "none";
     return;
   }
-  const sorted = sortLycees(lyceesAffiches, filters);
 
+  const sorted = sortLycees(lyceesAffiches, filters);
   const shown = sorted.slice(0, listLimit);
 
   shown.forEach(l => {
@@ -247,20 +246,36 @@ function updateLyceesList(map, filters) {
 
 
     li.onclick = () => {
-      selectLycee(l.marker, l.lat, l.lng, map);
+      // Zoom fluide vers le CENTRE de la carte
+      map.flyTo([l.lat, l.lng], 16, {
+        duration: 0.8,        
+        easeLinearity: 0.25, 
+        noMoveStart: false    
+      });
+      
+      // Ouvre la popup avec léger délai (sync avec animation)
+      setTimeout(() => {
+        if (l.marker) l.marker.openPopup();
+      }, 1000);
     };
 
     ul.appendChild(li);
   });
 
-  if (loadMoreBtn) {
-    if (listLimit < total) {
-      loadMoreBtn.style.display = "";
-      loadMoreBtn.textContent = `Afficher plus (${Math.min(LIST_STEP, total - listLimit)} suivants)`;
-    } else {
-      loadMoreBtn.style.display = "none";
+  let loadingMore = false;
+  ul.onscroll = function() {
+    if (loadingMore) return;
+    
+    const { scrollTop, scrollHeight, clientHeight } = ul;
+    // Si on est à moins de 50px du bas
+    if (scrollTop + clientHeight >= scrollHeight - 50) {
+      loadingMore = true;
+      
+      listLimit += LIST_STEP;
+      updateLyceesList(map, filters); // recharge avec +30
+      setTimeout(() => { loadingMore = false; }, 500);
     }
-  }
+  };
 }
 
 function sortLycees(lycees, filters) {

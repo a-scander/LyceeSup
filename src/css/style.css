@@ -7,11 +7,13 @@
 
 
 html, body {
-    height: 100%;
+    height: 100vh;
     margin: 0;
-    width: 100%;
+    width: 100vw;
     display: flex;
+    flex-direction: column;
     font-family: 'LTInternet', Arial, sans-serif;
+    overflow: hidden;
 
   }
   
@@ -20,7 +22,58 @@ html, body {
     width: 100%;
   }
   
- 
+  .site-header {
+    background: #fff;
+    color: black;
+    padding: 10px 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    justify-content: space-between; /* logo+h1 à gauche, bouton à droite */
+    align-items: center;
+    flex-shrink: 0;
+    z-index: 1000;
+  }
+
+  .title-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .logo-img {
+    width: 35px;
+    height: 35px;
+    object-fit: contain;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 1.5em;
+  }
+
+  .header-btn {
+    background: var(--greenMain);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(40, 167, 69, 0.3);
+    transition: all 0.2s ease;
+  }
+
+  .header-btn:hover {
+    background: #218838;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(40, 167, 69, 0.4);
+  }
+    .main-layout {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
 
   .filter-icon {
     width: 15px;
@@ -127,10 +180,9 @@ html, body {
 .results-popup{
   position: absolute;
   z-index: 999;          /* au-dessus de Leaflet */
-  top: 20px;
+  top: 70px;
   left: 320px;           /* ajuste selon ta sidebar */
   width: 360px;
-  max-height: 70vh;
   background: #fff;
   box-shadow: 0 12px 30px rgba(0,0,0,.18);
   overflow: hidden;
@@ -178,20 +230,11 @@ html, body {
   opacity: 0.75;
 }
 
-/* Body scrollable */
-.results-body{
-  overflow: auto;
-  flex: 1 1 auto;
-  min-height: 0;
-  height: calc(170px * 3);
-
-}
-
-
 .results-popup.is-collapsed{
   height: auto;              
 }
 
+/* Quand c'est plié */
 .results-popup.is-collapsed .results-body{
   max-height: 0;
   opacity: 0;
@@ -206,6 +249,8 @@ html, body {
   list-style: none;
   margin: 0;
   padding: 10px;
+  overflow: auto;
+  max-height: 65vh;
 }
 
 #lycees-list li{
@@ -213,6 +258,11 @@ html, body {
   height:145px;
 }
 
+#lycees-list li + li{
+  margin-top: -1px;
+  border-top: 1px solid rgba(0,0,0,.06);
+  border-radius: 0;
+}
 
 .locate-icon{
   width: 22px;
@@ -224,7 +274,7 @@ html, body {
 
 
   .sidebar {
-    width: 350px;
+    width: 300px;
     padding: 1rem;
     overflow-y: auto;
     overflow-x: visible !important;
@@ -234,8 +284,7 @@ html, body {
   .sidebar::-webkit-scrollbar {
   display: none;
   }
-
- 
+  
   .results-body::-webkit-scrollbar {
     display: none;
     }
@@ -278,10 +327,13 @@ html, body {
     background: #f0f0f0;
   }
 
+  .img-locate-btn{
+    height: 30px;
+    width: 30px;
+  }
   
   @media (max-width: 768px){
-    
-  
+      
     .map{
       left: 0;
       top: 45vh;       
