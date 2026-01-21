@@ -1,6 +1,6 @@
 "use strict";
 
-import { homeIcon, schoolIcon } from "./icons.js";
+import { homeIcon, schoolIcon,schoolIconActive  } from "./icons.js";
 
 
 /* ============================================================
@@ -21,6 +21,8 @@ let lyceesCluster;
 let userLatLng = null;
 let lyceesAffiches = [];
 let listLimit = 30;
+let activeMarker = null;
+
 
 
 /* ============================================================
@@ -39,10 +41,11 @@ export function initMap() {
       position: "bottomright"
     }).addTo(map);
   
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 18,
-      attribution: "&copy; OpenStreetMap"
-      }).addTo(map);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 20
+    }).addTo(map);
    
       lyceesCluster = createLyceesCluster();
       map.addLayer(lyceesCluster);
@@ -119,29 +122,98 @@ function buildLyceePopup(props) {
 Fonction qui gère la carte du lycée
 ============================================================ */
 function buildCardLyceeList(props) {
+  const nom = props.nom_etablissement ?? "Lycée";
+  const ville = props.commune ?? "—";
+
+  // Voies (un lycée peut en avoir plusieurs)
+  const voies = [];
+  if (props.voie_generale === "1") voies.push("Général");
+  if (props.voie_technologique === "1") voies.push("Techno");
+  if (props.voie_professionnelle === "1") voies.push("Pro");
+
+  // Statut
+  const statut = props.statut_public_prive ?? "—";
+
+  // Scores par voie
+  const scores = [];
+
+  if (typeof props.score_general === "number") {
+    scores.push(`Général : ${props.score_general}%`);
+  }
+
+  if (typeof props.score_techno === "number") {
+    scores.push(`Techno : ${props.score_techno}%`);
+  }
+
+  if (typeof props.score_pro === "number") {
+    scores.push(`Pro : ${props.score_pro}%`);
+  }
+
+  const tauxHtml = scores.length
+    ? `<div class="lycee-line">
+         <img class="lycee-ico" src="assets/icons/trophyor.png" alt="">
+         <span>${scores.join(" · ")}</span>
+       </div>`
+    : "";
+
+  // Proximité
+  const proximiteHtml =
+    typeof props.distanceKm === "number"
+      ? `<div class="lycee-line">
+           <img class="lycee-ico" src="assets/icons/walkgrey.png" alt="">
+           <span>${props.distanceKm.toFixed(1)} km</span>
+         </div>`
+      : "";
+
+  // Badges voies
+  const voiesBadges = voies
+    .map(v => `<span class="badge badge-grey">${v}</span>`)
+    .join("");
+
+  const statutBadge = `<span class="badge badge-blue">${statut}</span>`;
+
   return `
-    <div class="popup-lycee">
-      <h3 class="popup-title">${props.nom_etablissement ?? "Lycée"}</h3>
+    <div class="lycee-card">
 
-      <div class="popup-row">
-        <strong>Statut :</strong> ${props.statut_public_prive ?? "—"}
+      <div class="lycee-badges">
+        ${voiesBadges}
+        ${statutBadge}
       </div>
 
-      ${
-        typeof props.distanceKm === "number"
-          ? `<div class="popup-row">
-              <strong>Distance :</strong> ${props.distanceKm.toFixed(1)} km
-            </div>`
-          : ""
-      }
-
-      <div class="popup-row">
-        <strong>Contact :</strong><br>
-        ${props.telephone ? `📞 ${props.telephone}<br>` : ""}
-        ${props.web ? `🌐 <a href="${props.web}" target="_blank">Site web</a>` : ""}
+      <div class="lycee-top">
+        <div class="lycee-name">
+          <img class="lycee-ico lycee-ico-title" src="assets/icons/logonoir.png" alt="">
+          <span class="lycee-title">${nom}</span>
+        </div>
+        <span class="lycee-arrow">›</span>
       </div>
+
+      <div class="lycee-line">
+        <img class="lycee-ico" src="assets/icons/marqueurvert.png" alt="">
+        <span>${ville}</span>
+      </div>
+
+      ${tauxHtml}
+      ${proximiteHtml}
+
     </div>
   `;
+}
+
+/* ============================================================
+ssss
+============================================================ */
+
+function selectLycee(marker, lat, lng, map) {
+  if (activeMarker && activeMarker !== marker) {
+    activeMarker.setIcon(schoolIcon);
+  }
+
+  marker.setIcon(schoolIconActive);
+  activeMarker = marker;
+
+  map.setView([lat, lng], 16);
+  marker.openPopup();
 }
 
 /* ============================================================
@@ -173,9 +245,9 @@ function updateLyceesList(map, filters) {
 
     li.innerHTML = buildCardLyceeList(l);
 
+
     li.onclick = () => {
-      map.setView([l.lat, l.lng], 16);
-      l.marker.openPopup();
+      selectLycee(l.marker, l.lat, l.lng, map);
     };
 
     ul.appendChild(li);
@@ -397,11 +469,15 @@ export function renderLycees(geojsonData, filters, map) {
       const props = { ...feature.properties, distanceKm };
       const marker = L.marker(latlng, { icon: schoolIcon });    
       marker.bindPopup(buildLyceePopup(props));
-      marker.on("popupopen", () => {
-        console.groupCollapsed(`[LYCÉE] ${props.nom_etablissement ?? "—"} (${props.uai ?? "—"})`);
-        console.log(props);
-        console.groupEnd();
+      // marker.on("popupopen", () => {
+      //   console.groupCollapsed(`[LYCÉE] ${props.nom_etablissement ?? "—"} (${props.uai ?? "—"})`);
+      //   console.log(props);
+      //   console.groupEnd();
+      // });
+      marker.on("click", () => {
+        selectLycee(marker, latlng.lat, latlng.lng, map);
       });
+      
       lyceesAffiches.push({
         ...feature.properties,
         lat: latlng.lat,

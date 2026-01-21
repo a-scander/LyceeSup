@@ -33,16 +33,37 @@ const getFilters = () => {
 window.onload = async () => {
   const map = initMap();
   const geojson = await loadGeoJSON("../data/lycees.geojson");
+  const popup = document.getElementById("resultsPopup");
+  const toggle = document.getElementById("resultsToggle");
+
   initOptionDropdowns(geojson);
   renderLycees(geojson, getFilters(), map);
+  map.on("locationfound", () => {
+    renderLycees(geojson, getFilters(), map);
+  });
 
 
+  toggle.addEventListener("click", () => {
+    const isCollapsed = popup.classList.toggle("is-collapsed");
+    toggle.setAttribute("aria-expanded", String(!isCollapsed));
+    toggle.textContent = isCollapsed ? "▶" : "▼";
+  });
+  
 
   document.querySelector(".filters").addEventListener("change", (e) => {
-    if (e.target.name === "voie") {
-      resetFormationFields();
-    } 
+    if (e.target.name === "voie") resetFormationFields();
+
     renderLycees(geojson, getFilters(), map);
+
+    if (Number(document.getElementById("lycees-count")?.textContent) === 0) {
+      popup.classList.add("is-collapsed");
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.textContent = "▶";
+    } else {
+      popup.classList.remove("is-collapsed");
+      toggle.setAttribute("aria-expanded", "true");
+      toggle.textContent = "▼";
+    }
   });
 
 
@@ -56,9 +77,6 @@ window.onload = async () => {
     loadMoreLycees(map, getFilters());
   });
   
-
-/////////////////////////////////////////////////////////////////////////////
-
   document.getElementById("locateBtn").addEventListener("click", () => {
     const userPos = getUserLatLng();
 

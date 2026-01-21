@@ -2,7 +2,8 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Carte Leaflet</title>
+ <title>FindSchool</title>
+ <link rel="icon" type="image/png" href="assets/icons/logonoir.png">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="vendor/leaflet/dist/leaflet.css">
   <script src="vendor/leaflet/dist/leaflet.js"></script>
@@ -229,13 +230,7 @@
         </div>
     
       </form>
-    
-      <!-- <div class="actions">
-        <button type="button" id="applyBtn" class="btn btn-primary">
-          <img src="assets/icons/apply.png" alt="" class="btn-icon">
-          Appliquer filtres
-        </button> -->
-      
+
         <button type="button" id="resetBtn" class="btn btn-primary">
           <img src="assets/icons/reset.png" alt="" class="btn-icon">
           Réinitialiser
@@ -246,14 +241,19 @@
 
   <div id="map"></div>
 
-  <div id="resultsPopup" class="results-popup">
+  <div id="resultsPopup" class="results-popup ">
     <div class="results-header">
       <div class="results-title">
-        <span id="lycees-count">0</span> lycées trouvés
-      </div>
+      <img src="assets/icons/list.png" alt="liste" class="results-icon">
+      <span id="lycees-count">0</span> lycées trouvés
+      <button id="resultsToggle" class="results-toggle" type="button" aria-expanded="true" aria-controls="resultsBody">
+        ▶
+      </button>
+    </div>
+    
     </div>
   
-    <div class="results-body">
+    <div id="resultsBody"  class="results-body">
       <ul id="lycees-list"></ul>
       <button id="loadMoreBtn" class="btn btn-primary" style="border-radius: none;" type="button"></button>
       
@@ -261,8 +261,9 @@
   </div>
   
   <button id="locateBtn" class="locate-btn" title="Revenir à ma position">
-    📍
+    <img src="assets/icons/marqueurvert.png" alt="Ma position" class="locate-icon">
   </button>
+  
 
 </body>
 </html>
