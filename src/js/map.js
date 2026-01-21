@@ -65,7 +65,7 @@ function setupGeolocation(map) {
     map.on("locationfound", (e) => {   // Événement déclenché quand la position est trouvée
 
       userLatLng = e.latlng;
-      map.setView(e.latlng, 15);
+      map.setView(e.latlng, 16);
 
       L.marker(e.latlng, { icon: homeIcon })
         .addTo(map)
@@ -212,7 +212,11 @@ function selectLycee(marker, lat, lng, map) {
   marker.setIcon(schoolIconActive);
   activeMarker = marker;
 
-  map.setView([lat, lng], 16);
+  map.flyTo([lat, lng], 16, {
+        duration: 0.8,        
+        easeLinearity: 0.25, 
+        noMoveStart: false    
+      });
   marker.openPopup();
 }
 
@@ -246,17 +250,9 @@ function updateLyceesList(map, filters) {
 
 
     li.onclick = () => {
-      // Zoom fluide vers le CENTRE de la carte
-      map.flyTo([l.lat, l.lng], 16, {
-        duration: 0.8,        
-        easeLinearity: 0.25, 
-        noMoveStart: false    
-      });
-      
-      // Ouvre la popup avec léger délai (sync avec animation)
-      setTimeout(() => {
-        if (l.marker) l.marker.openPopup();
-      }, 1000);
+      if(l.marker){
+        selectLycee(l.marker, l.lat, l.lng, map);
+      }
     };
 
     ul.appendChild(li);
@@ -267,12 +263,12 @@ function updateLyceesList(map, filters) {
     if (loadingMore) return;
     
     const { scrollTop, scrollHeight, clientHeight } = ul;
-    // Si on est à moins de 50px du bas
+
     if (scrollTop + clientHeight >= scrollHeight - 50) {
       loadingMore = true;
       
       listLimit += LIST_STEP;
-      updateLyceesList(map, filters); // recharge avec +30
+      updateLyceesList(map, filters); 
       setTimeout(() => { loadingMore = false; }, 500);
     }
   };

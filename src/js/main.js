@@ -85,6 +85,6 @@ window.onload = async () => {
       return;
     }
 
-    map.setView(userPos, 15);
+    map.setView(userPos, 16);
   });
 };
