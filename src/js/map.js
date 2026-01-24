@@ -2,6 +2,8 @@
 
 import { homeIcon, schoolIcon,schoolIconActive  } from "./icons.js";
 
+import { PRO_LABELS } from "./ui.js";
+
 
 /* ============================================================
 CONSTANTES
@@ -22,6 +24,7 @@ let userLatLng = null;
 let lyceesAffiches = [];
 let listLimit = 30;
 let activeMarker = null;
+let geolocationDenied = false;
 
 
 
@@ -94,9 +97,14 @@ function setupGeolocation(map) {
 
   map.on("locationerror", (e) => {      // Événement déclenché si la géolocalisation échoue, on met Paris par défaut
     console.warn("Géolocalisation impossible :", e.message);
+    geolocationDenied = true;
     map.setView(PARIS_DEFAULT.latlng, PARIS_DEFAULT.zoom);  
     });
 
+}
+
+export function isGeolocationDenied() {
+  return geolocationDenied;
 }
 
 /* ============================================================
@@ -233,11 +241,11 @@ function buildLyceeDetails(props) {
   if (props.voie_generale === "1") voies.push("Général");
   if (props.voie_technologique === "1") voies.push("Techno");
   if (props.voie_professionnelle === "1") voies.push("Pro");
-  const voiesBubbles = voies.map(v => `<span class="spec-bubble">${v}</span>`).join('') || "—";
+  const voiesBubbles = voies.map(v => `<span class="badge badge-grey">${v}</span>`).join('') || "—";
   
-  const specsGenBubbles = (props.optionGenerale || []).slice(0, 8).map(s => `<span class="spec-bubble">${s.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')}</span>`).join('');
-  const specsTechBubbles = (props.optionTechno || []).slice(0, 8).map(s => `<span class="spec-bubble techno">${s.toUpperCase()}</span>`).join('');
-  const specsProBubbles = (props.optionPro || []).slice(0, 8).map(s => `<span class="spec-bubble pro">${s.toUpperCase()}</span>`).join('');
+  const specsGenBubbles = (props.optionGenerale || []).slice(0, 8).map(s => `<span class="badge badge-grey">${s.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')}</span>`).join('');
+  const specsTechBubbles = (props.optionTechno || []).slice(0, 8).map(s => `<span class="badge badge-grey">${s.toUpperCase()}</span>`).join('');
+  const specsProBubbles = (props.optionPro || []).slice(0, 8).map(s => {const label = PRO_LABELS[s] || s; return `<span class="badge badge-grey">${label}</span>`}).join('');
   
   return `
     <div class="lycee-details-grid">
@@ -535,9 +543,16 @@ function matchesFilters(feature, filters) {
     (filters.statut === "public" && statut.includes("Public")) ||
     (filters.statut === "prive" && statut.includes("Privé"));
 
-  const matchRestauration = passRadio01(filters.restauration, toNum01(p.restauration));
-  const matchHebergement = passRadio01(filters.hebergement, toNum01(p.hebergement));
-  const matchApprentissage = passRadio01(filters.apprentissage, toNum01(p.apprentissage));
+  const services = filters.services || [];
+
+  const matchServices =
+    services.length === 0 ||
+    services.every(service => {
+      if (service === "restauration") return toNum01(p.restauration) === 1;
+      if (service === "hebergement") return toNum01(p.hebergement) === 1;
+      if (service === "apprentissage") return toNum01(p.apprentissage) === 1;
+      return false;
+    });
 
   const voieG = toNum01(p.voie_generale);
   const voieT = toNum01(p.voie_technologique);
@@ -549,7 +564,7 @@ function matchesFilters(feature, filters) {
     (filters.voie === "technologique" && voieT === 1) ||
     (filters.voie === "professionnel" && voieP === 1);
 
-  if (!(matchStatut && matchRestauration && matchHebergement && matchApprentissage && matchVoie)) {
+  if (!(matchStatut && matchServices && matchVoie)) {
     return false;
   }
 
