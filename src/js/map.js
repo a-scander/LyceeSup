@@ -22,6 +22,7 @@ let userLatLng = null;
 let lyceesAffiches = [];
 let listLimit = 30;
 let activeMarker = null;
+let geolocationDenied = false;
 
 
 
@@ -94,9 +95,14 @@ function setupGeolocation(map) {
 
   map.on("locationerror", (e) => {      // Événement déclenché si la géolocalisation échoue, on met Paris par défaut
     console.warn("Géolocalisation impossible :", e.message);
+    geolocationDenied = true;
     map.setView(PARIS_DEFAULT.latlng, PARIS_DEFAULT.zoom);  
     });
 
+}
+
+export function isGeolocationDenied() {
+  return geolocationDenied;
 }
 
 /* ============================================================
@@ -233,11 +239,11 @@ function buildLyceeDetails(props) {
   if (props.voie_generale === "1") voies.push("Général");
   if (props.voie_technologique === "1") voies.push("Techno");
   if (props.voie_professionnelle === "1") voies.push("Pro");
-  const voiesBubbles = voies.map(v => `<span class="spec-bubble">${v}</span>`).join('') || "—";
+  const voiesBubbles = voies.map(v => `<span class="badge badge-grey">${v}</span>`).join('') || "—";
   
-  const specsGenBubbles = (props.optionGenerale || []).slice(0, 8).map(s => `<span class="spec-bubble">${s.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')}</span>`).join('');
-  const specsTechBubbles = (props.optionTechno || []).slice(0, 8).map(s => `<span class="spec-bubble techno">${s.toUpperCase()}</span>`).join('');
-  const specsProBubbles = (props.optionPro || []).slice(0, 8).map(s => `<span class="spec-bubble pro">${s.toUpperCase()}</span>`).join('');
+  const specsGenBubbles = (props.optionGenerale || []).slice(0, 8).map(s => `<span class="badge badge-grey">${s.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')}</span>`).join('');
+  const specsTechBubbles = (props.optionTechno || []).slice(0, 8).map(s => `<span class="badge badge-grey">${s.toUpperCase()}</span>`).join('');
+  const specsProBubbles = (props.optionPro || []).slice(0, 8).map(s => `<span class="badge badge-grey">${s.toUpperCase()}</span>`).join('');
   
   return `
     <div class="lycee-details-grid">
