@@ -1,6 +1,6 @@
-import { initMap, renderLycees, getUserLatLng,loadMoreLycees  } from "./map.js";
+import { initMap, renderLycees, getUserLatLng,loadMoreLycees, isGeolocationDenied } from "./map.js";
 import { loadGeoJSON } from "./data.js";
-import {resetFilters,initOptionDropdowns,resetFormationFields, } from "./ui.js"
+import {resetFilters,initOptionDropdowns,resetFormationFields } from "./ui.js"
 
 const getFilters = () => {
   return {
@@ -9,7 +9,7 @@ const getFilters = () => {
     hebergement: document.querySelector('input[name="hebergement"]:checked')?.value || "",
     apprentissage: document.querySelector('input[name="apprentissage"]:checked')?.value || "",
     voie: document.querySelector('input[name="voie"]:checked')?.value || "",
-    profil: document.querySelector('input[name="profil"]:checked')?.value || "",
+    profil: document.querySelector('input[name="userProfil"]:checked')?.value || "",
 
     specialitesGeneral: [
       ...document.querySelectorAll('input[name="specialitesGeneral"]:checked')
@@ -29,18 +29,44 @@ const getFilters = () => {
   };
 };
 
+function closeModalFn() {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+function formatProfilLabel(profil) {
+  switch (profil) {
+    case "proximite":
+      return "Proximité";
+    case "performance":
+      return "Performance";
+    default:
+      return "Équilibre";
+  }
+}
 
 window.onload = async () => {
   const map = initMap();
   const geojson = await loadGeoJSON("../data/lycees.geojson");
   const popup = document.getElementById("resultsPopup");
   const toggle = document.getElementById("resultsToggle");
+  const headerBtn = document.querySelector('.header-btn');
+  const modal = document.getElementById('profilModal');
+  const closeModal = document.getElementById('closeModal');
+  const saveProfil = document.getElementById('saveProfil');
 
   initOptionDropdowns(geojson);
   renderLycees(geojson, getFilters(), map);
   map.on("locationfound", () => {
     renderLycees(geojson, getFilters(), map);
   });
+
+  if (isGeolocationDenied()) {
+    headerBtn.textContent = "Performance";
+    headerBtn.classList.add("disabled");
+  } else {
+    headerBtn.textContent = "Équilibre";
+  }
 
 
   toggle.addEventListener("click", () => {
@@ -76,7 +102,7 @@ window.onload = async () => {
   document.getElementById("loadMoreBtn")?.addEventListener("click", () => {
     loadMoreLycees(map, getFilters());
   });
-  
+
   document.getElementById("locateBtn").addEventListener("click", () => {
     const userPos = getUserLatLng();
 
@@ -85,6 +111,36 @@ window.onload = async () => {
       return;
     }
 
-    map.setView(userPos, 16);
+     map.flyTo(userPos, 16, {
+        duration: 1.2,
+        easeLinearity: 0.25
+      });
+
+  });
+
+  headerBtn.addEventListener('click', () => {
+
+    if (isGeolocationDenied()) {
+      alert("Active la localisation pour choisir un autre profil");
+      return;
+    }
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  });
+
+  closeModal.addEventListener('click', closeModalFn);
+  saveProfil.addEventListener('click', closeModalFn);
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModalFn();
+  });
+
+  saveProfil.addEventListener("click", () => {
+    modal.style.display = "none";
+    const profil = document.querySelector('#profilModal input[name="userProfil"]:checked').value;
+    headerBtn.textContent = formatProfilLabel(profil);
+
+    renderLycees(geojson, getFilters(), map);
   });
 };
