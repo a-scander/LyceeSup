@@ -527,13 +527,6 @@ function matchesFilters(feature, filters) {
   const norm = (s) => String(s ?? "").trim();
   const normLower = (s) => norm(s).toLowerCase();
 
-  const passRadio01 = (choice, value01) => {
-    // choice: "" | "avec" | "sans"
-    if (!choice) return true;
-    const v = value01 === 1;
-    return choice === "avec" ? v : !v;
-  };
-
   // -----------------------
   // 1) Filtres globaux (radios)
   // -----------------------
