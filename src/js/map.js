@@ -2,6 +2,8 @@
 
 import { homeIcon, schoolIcon,schoolIconActive  } from "./icons.js";
 
+import { PRO_LABELS } from "./ui.js";
+
 
 /* ============================================================
 CONSTANTES
@@ -243,7 +245,7 @@ function buildLyceeDetails(props) {
   
   const specsGenBubbles = (props.optionGenerale || []).slice(0, 8).map(s => `<span class="badge badge-grey">${s.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')}</span>`).join('');
   const specsTechBubbles = (props.optionTechno || []).slice(0, 8).map(s => `<span class="badge badge-grey">${s.toUpperCase()}</span>`).join('');
-  const specsProBubbles = (props.optionPro || []).slice(0, 8).map(s => `<span class="badge badge-grey">${s.toUpperCase()}</span>`).join('');
+  const specsProBubbles = (props.optionPro || []).slice(0, 8).map(s => {const label = PRO_LABELS[s] || s; return `<span class="badge badge-grey">${label}</span>`}).join('');
   
   return `
     <div class="lycee-details-grid">
@@ -305,55 +307,79 @@ function selectLycee(marker, lat, lng, map) {
     activeMarker.setIcon(schoolIcon);
   }
 
-  marker.setIcon(schoolIconActive);
-  activeMarker = marker;
-
-  map.flyTo([lat, lng], 16, {
-        duration: 0.8,        
-        easeLinearity: 0.25, 
-        noMoveStart: false    
-      });
-  
-  setTimeout(() => {
-    marker.openPopup();
-  }, 850); 
-
-  openLyceeInList(marker);
+ if (marker !== activeMarker) { 
+    marker.setIcon(schoolIconActive);
+    activeMarker = marker;
+    
+    map.flyTo([lat, lng], 16, {
+      duration: 0.8,        
+      easeLinearity: 0.25, 
+      noMoveStart: false    
+    });
+    setTimeout(() => marker.openPopup(), 850);
+  } else {
+    
+    setTimeout(() => marker.openPopup(), 50);
+  }
+  openLyceeInList(marker, map);
 }
 
-function openLyceeInList(marker) {
+let isLoadingForMarker = false; // ✅ Global flag (ajoutez après variables)
+
+function openLyceeInList(marker, map) {
+  if (isLoadingForMarker) return; // Évite boucle
+  
+  isLoadingForMarker = true;
+
   // Ferme tous les autres
   document.querySelectorAll('.lycee-expand.open').forEach(el => {
-    el.classList.remove('open');
+    el.classList.remove("open");
     el.style.maxHeight = null;
   });
 
-  // Trouve l'item par marker référence
   const lyceeData = lyceesAffiches.find(l => l.marker === marker);
-  if (!lyceeData) return;
+  if (!lyceeData) {
+    isLoadingForMarker = false;
+    return;
+  }
 
-  const item = Array.from(document.querySelectorAll('.lycee-item')).find(li => {
+  let item = Array.from(document.querySelectorAll('.lycee-item')).find(li => {
     const title = li.querySelector('.lycee-title')?.textContent.trim();
     return title === lyceeData.nom_etablissement;
   });
 
-  if (item) {
-    const expand = item.querySelector('.lycee-expand');
-    const lyceeTop = item.querySelector('.lycee-top');
-
-    expand.innerHTML = buildLyceeDetails(lyceeData); // Toutes les données
-    const scrollHeight = expand.scrollHeight + 32;
-    expand.classList.add('open');
-    expand.style.maxHeight = scrollHeight + 'px';
+  // ✅ SI PAS DANS LISTE → CHARGE + RETRY
+  if (!item) {
+    const index = lyceesAffiches.findIndex(l => l.marker === marker);
+    listLimit = Math.max(listLimit, index + LIST_STEP + 10); // + marge
+    updateLyceesList(map, {});
     
-    // Header active + scroll
-    lyceeTop.classList.add('active');
-    document.querySelectorAll('.lycee-top.active').forEach(otherTop => {
-      if (otherTop !== lyceeTop) otherTop.classList.remove('active');
-    });
-
-    item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => {
+      isLoadingForMarker = false;
+      openLyceeInList(marker, map); // Retry
+    }, 350);
+    return;
   }
+
+  // ✅ OUVRE (trouvé)
+  const expand = item.querySelector('.lycee-expand');
+  const lyceeTop = item.querySelector('.lycee-top');
+
+  expand.innerHTML = buildLyceeDetails(lyceeData);
+  const scrollHeight = expand.scrollHeight + 32;
+  expand.classList.add('open');
+  expand.style.maxHeight = scrollHeight + 'px';
+  
+  lyceeTop.classList.add('active');
+  
+  // Ferme autres headers
+  document.querySelectorAll('.lycee-top.active').forEach(otherTop => {
+    if (otherTop !== lyceeTop) otherTop.classList.remove('active');
+  });
+  
+  item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  
+  isLoadingForMarker = false;
 }
 
 /* ============================================================
@@ -517,9 +543,16 @@ function matchesFilters(feature, filters) {
     (filters.statut === "public" && statut.includes("Public")) ||
     (filters.statut === "prive" && statut.includes("Privé"));
 
-  const matchRestauration = passRadio01(filters.restauration, toNum01(p.restauration));
-  const matchHebergement = passRadio01(filters.hebergement, toNum01(p.hebergement));
-  const matchApprentissage = passRadio01(filters.apprentissage, toNum01(p.apprentissage));
+  const services = filters.services || [];
+
+  const matchServices =
+    services.length === 0 ||
+    services.every(service => {
+      if (service === "restauration") return toNum01(p.restauration) === 1;
+      if (service === "hebergement") return toNum01(p.hebergement) === 1;
+      if (service === "apprentissage") return toNum01(p.apprentissage) === 1;
+      return false;
+    });
 
   const voieG = toNum01(p.voie_generale);
   const voieT = toNum01(p.voie_technologique);
@@ -531,7 +564,7 @@ function matchesFilters(feature, filters) {
     (filters.voie === "technologique" && voieT === 1) ||
     (filters.voie === "professionnel" && voieP === 1);
 
-  if (!(matchStatut && matchRestauration && matchHebergement && matchApprentissage && matchVoie)) {
+  if (!(matchStatut && matchServices && matchVoie)) {
     return false;
   }
 

@@ -5,12 +5,13 @@ import {resetFilters,initOptionDropdowns,resetFormationFields } from "./ui.js"
 const getFilters = () => {
   return {
     statut: document.querySelector('input[name="statut"]:checked')?.value || "",
-    restauration: document.querySelector('input[name="restauration"]:checked')?.value || "",
-    hebergement: document.querySelector('input[name="hebergement"]:checked')?.value || "",
-    apprentissage: document.querySelector('input[name="apprentissage"]:checked')?.value || "",
     voie: document.querySelector('input[name="voie"]:checked')?.value || "",
     profil: document.querySelector('input[name="userProfil"]:checked')?.value || "",
 
+    services: [
+      ...document.querySelectorAll('input[name="services"]:checked')
+    ].map(i => i.value),
+    
     specialitesGeneral: [
       ...document.querySelectorAll('input[name="specialitesGeneral"]:checked')
     ].map(i => i.value),

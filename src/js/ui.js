@@ -11,7 +11,7 @@ const TECHNO_LABELS = {
   stmg: "STMG — Management et gestion"
 };
 
-const PRO_LABELS = {
+export const PRO_LABELS = {
   communication: "Communication",
   echanges: "Échanges / commerce",
   genie_civil: "Génie civil",
