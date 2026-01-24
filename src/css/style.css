@@ -251,11 +251,14 @@ html, body {
   padding: 10px;
   overflow: auto;
   max-height: 65vh;
+  scroll-behavior: smooth;
 }
 
 #lycees-list li{
   padding: 10px 10px;
-  height:145px;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
 }
 
 #lycees-list li + li{
@@ -270,6 +273,114 @@ html, body {
   object-fit: contain;
 
 }
+
+.lycee-expand {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
+  padding: 0;
+  background: #f9f9f9;
+}
+
+.lycee-expand.open {
+  max-height: 400px; /* Augmentez si plus d'infos */
+  padding: 10px;
+}
+
+/* Optionnel : rotation flèche pour feedback visuel */
+.lycee-top.active .lycee-arrow {
+  transform: rotate(90deg);
+  color: var(--greenMain);
+}
+
+.lycee-details-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.detail-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.detail-row.full {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.detail-ico {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.detail-label {
+  font-weight: 800;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.detail-specs {
+  color: var(--greenMain);
+  font-weight: 500;
+  background: rgba(20,184,166,0.1);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(20,184,166,0.2);
+  font-size: 13px;
+  line-height: 1.3;
+  max-height: 2.5em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: normal;
+}
+
+.spec-bubbles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.spec-bubble {
+  background: rgba(75,85,99,0.15); 
+  color:  #6B7280;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid rgba(75,85,99,0.15); 
+}
+
+.services-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.service-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(20,184,166,0.08);
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+.service-ico { 
+  width: 16px; 
+  height: 16px; 
+}
+
   /* ------------------------------------------------------ */
 
 
@@ -292,6 +403,12 @@ html, body {
   .lycee-item {
     border-bottom: 1px solid #ddd;
     cursor: pointer;
+    gap : 30px;
+
+  }
+
+  .lycee-card {
+    flex: 1;
   }
 
   .lycee-item:hover {
@@ -439,7 +556,7 @@ html, body {
 .lycee-top{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
 .lycee-name{ display:flex; align-items:center; gap:8px; min-width:0; }
 .lycee-title{ font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.lycee-arrow{ color:#999; font-size:22px; }
+.lycee-arrow{ color:#999; font-size:22px; transition: transform 0.3s ease; transform: rotate(0deg);}
 .lycee-line{ display:flex; align-items:center; gap:8px; margin-top:6px; color:#666; font-size:13px; }
 .lycee-ico{ width:16px; height:16px; object-fit:contain; flex:0 0 auto; }
 .lycee-badges{ display:flex; gap:8px; margin-top:4px; margin-bottom: 8px;  flex-wrap:wrap; }
