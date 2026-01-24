@@ -51,6 +51,22 @@ export function initMap() {
       map.addLayer(lyceesCluster);
 
   setupGeolocation(map);
+
+  map.on("click", () => {
+    if (activeMarker) {
+      activeMarker.setIcon(schoolIcon);
+      activeMarker = null;
+    }
+
+    document.querySelectorAll(".lycee-expand.open").forEach(el => {
+      el.classList.remove("open");
+      el.style.maxHeight = null;
+      document.querySelectorAll('.lycee-top.active').forEach(top => {
+      top.classList.remove('active');
+    });
+    });
+  });
+
   return map;
 }
 
@@ -65,7 +81,10 @@ function setupGeolocation(map) {
     map.on("locationfound", (e) => {   // Événement déclenché quand la position est trouvée
 
       userLatLng = e.latlng;
-      map.setView(e.latlng, 16);
+      map.flyTo(e.latlng, 16, {
+        duration: 1.2,
+        easeLinearity: 0.25
+      });
 
       L.marker(e.latlng, { icon: homeIcon })
         .addTo(map)
@@ -200,6 +219,77 @@ function buildCardLyceeList(props) {
   `;
 }
 
+function buildLyceeDetails(props) {
+  const adresse = props.adresse ?? "—";
+  const commune = props.commune ?? "—";
+  const telephone = props.telephone ?? "—";
+  const web = props.web ?? null;
+  const statut = props.statut_public_prive ?? "—";
+  const hebergement = props.hebergement === 1 ? "Oui" : "Non";
+  const restauration = props.restauration === 1 ? "Oui" : "Non";
+  const apprentissage = props.apprentissage === "1" ? "Oui" : "Non";
+  
+  const voies = [];
+  if (props.voie_generale === "1") voies.push("Général");
+  if (props.voie_technologique === "1") voies.push("Techno");
+  if (props.voie_professionnelle === "1") voies.push("Pro");
+  const voiesBubbles = voies.map(v => `<span class="spec-bubble">${v}</span>`).join('') || "—";
+  
+  const specsGenBubbles = (props.optionGenerale || []).slice(0, 8).map(s => `<span class="spec-bubble">${s.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')}</span>`).join('');
+  const specsTechBubbles = (props.optionTechno || []).slice(0, 8).map(s => `<span class="spec-bubble techno">${s.toUpperCase()}</span>`).join('');
+  const specsProBubbles = (props.optionPro || []).slice(0, 8).map(s => `<span class="spec-bubble pro">${s.toUpperCase()}</span>`).join('');
+  
+  return `
+    <div class="lycee-details-grid">
+      <div class="detail-row">
+        <img src="assets/icons/marqueurvert.png" class="detail-ico" alt="">
+        <div>
+          <strong>Adresse</strong><br>${adresse}, ${commune}
+        </div>
+      </div>
+      <div class="detail-row">
+        <img src="assets/icons/telephone.png" class="detail-ico" alt="">
+        <div><strong>Téléphone</strong><br>${telephone}</div>
+      </div>
+      ${web ? `<div class="detail-row">
+        <img src="assets/icons/web.png" class="detail-ico" alt="">
+        <div><strong>Site web</strong><br><a href="${web}" target="_blank">${web}</a></div>
+      </div>` : ''}
+      
+      <div class="detail-row full">
+        <div class="detail-label">Types de filières</div>
+        <div class="spec-bubbles">${voiesBubbles}</div>
+      </div>
+      
+      ${specsGenBubbles ? `<div class="detail-row full">
+        <div class="detail-label">Spécialités Générales</div>
+        <div class="spec-bubbles">${specsGenBubbles}</div>
+      </div>` : ''}
+      
+      ${specsTechBubbles ? `<div class="detail-row full">
+        <div class="detail-label">Spécialités Technologies</div>
+        <div class="spec-bubbles">${specsTechBubbles}</div>
+      </div>` : ''}
+      
+      ${specsProBubbles ? `<div class="detail-row full">
+        <div class="detail-label">Spécialités Professionel</div>
+        <div class="spec-bubbles">${specsProBubbles}</div>
+      </div>` : ''}
+      
+      <div class="detail-row full">
+        <div class="detail-label">Services disponibles</div>
+        <div class="services-grid">
+          ${hebergement === "Oui" ? `<div class="service-item"><img src="assets/icons/hebergement.png" class="service-ico"><span>Hébergement</span></div>` : ''}
+          ${restauration === "Oui" ? `<div class="service-item"><img src="assets/icons/assiette.png" class="service-ico"><span>Restauration</span></div>` : ''}
+          ${apprentissage === "Oui" ? `<div class="service-item"><img src="assets/icons/apprentissage.png" class="service-ico"><span>Apprentissage</span></div>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+
+
 /* ============================================================
 ssss
 ============================================================ */
@@ -217,7 +307,47 @@ function selectLycee(marker, lat, lng, map) {
         easeLinearity: 0.25, 
         noMoveStart: false    
       });
-  marker.openPopup();
+  
+  setTimeout(() => {
+    marker.openPopup();
+  }, 850); 
+
+  openLyceeInList(marker);
+}
+
+function openLyceeInList(marker) {
+  // Ferme tous les autres
+  document.querySelectorAll('.lycee-expand.open').forEach(el => {
+    el.classList.remove('open');
+    el.style.maxHeight = null;
+  });
+
+  // Trouve l'item par marker référence
+  const lyceeData = lyceesAffiches.find(l => l.marker === marker);
+  if (!lyceeData) return;
+
+  const item = Array.from(document.querySelectorAll('.lycee-item')).find(li => {
+    const title = li.querySelector('.lycee-title')?.textContent.trim();
+    return title === lyceeData.nom_etablissement;
+  });
+
+  if (item) {
+    const expand = item.querySelector('.lycee-expand');
+    const lyceeTop = item.querySelector('.lycee-top');
+
+    expand.innerHTML = buildLyceeDetails(lyceeData); // Toutes les données
+    const scrollHeight = expand.scrollHeight + 32;
+    expand.classList.add('open');
+    expand.style.maxHeight = scrollHeight + 'px';
+    
+    // Header active + scroll
+    lyceeTop.classList.add('active');
+    document.querySelectorAll('.lycee-top.active').forEach(otherTop => {
+      if (otherTop !== lyceeTop) otherTop.classList.remove('active');
+    });
+
+    item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
 }
 
 /* ============================================================
@@ -246,14 +376,44 @@ function updateLyceesList(map, filters) {
     const li = document.createElement("li");
     li.className = "lycee-item popup-lycee";
 
-    li.innerHTML = buildCardLyceeList(l);
+    li.innerHTML = `
+      ${buildCardLyceeList(l)}
+      <div class="lycee-expand"></div>
+      `;
 
 
-    li.onclick = () => {
-      if(l.marker){
-        selectLycee(l.marker, l.lat, l.lng, map);
+   li.addEventListener('click', function(e) {
+      e.stopPropagation();
+
+      const expand = li.querySelector(".lycee-expand");
+      const lyceeTop = li.querySelector(".lycee-top");
+      const isOpen = expand.classList.contains("open");
+
+      document.querySelectorAll(".lycee-expand.open").forEach(el => {
+        if (el !== expand) {
+          el.classList.remove("open");
+          el.style.maxHeight = null;
+        }
+      });
+
+       if (!isOpen) {
+        expand.innerHTML = buildLyceeDetails(l);
+        const scrollHeight = expand.scrollHeight + 32;
+        expand.classList.add("open");
+        expand.style.maxHeight = scrollHeight + "px";
+
+        lyceeTop.classList.add('active'); 
+        
+        li.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        
+        if (l.marker) selectLycee(l.marker, l.lat, l.lng, map);
+      } else {
+        expand.style.maxHeight = expand.scrollHeight + "px";
+        expand.classList.remove("open");
+        lyceeTop.classList.remove('active');
+        setTimeout(() => { expand.style.maxHeight = null; }, 10);
       }
-    };
+   });
 
     ul.appendChild(li);
   });
