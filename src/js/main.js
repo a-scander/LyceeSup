@@ -30,10 +30,6 @@ const getFilters = () => {
   };
 };
 
-function closeModalFn() {
-    modal.style.display = 'none';
-    document.body.style.overflow = '';
-  }
 
 function formatProfilLabel(profil) {
   switch (profil) {
@@ -118,6 +114,11 @@ window.onload = async () => {
       });
 
   });
+
+  function closeModalFn() {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
 
   headerBtn.addEventListener('click', () => {
 

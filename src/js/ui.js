@@ -38,10 +38,13 @@ export function resetFilters() {
   setChecked('input[name="voie"][value=""]');
   setChecked('input[name="profil"][value="equilibre"]');
   setChecked('input[name="statut"][value=""]');
-  setChecked('input[name="restauration"][value=""]');
-  setChecked('input[name="hebergement"][value=""]');
-  setChecked('input[name="apprentissage"][value=""]');
 
+   ["services"].forEach(name => {
+    document
+      .querySelectorAll(`input[name="${name}"]`)
+      .forEach(cb => cb.checked = false);
+  });
+  
   resetFormationFields();
 }
 

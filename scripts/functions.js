@@ -188,7 +188,13 @@ export function computeScoreGeneral(taux_general) {
    → Moyenne des taux de réussite disponibles
 ============================================================ */
 export function computeScoreTechno(taux_techno) {
-  return mean(extractTaux(taux_techno));
+  const value = mean(extractTaux(taux_techno));
+
+  if (value === null || value === undefined || isNaN(value)) {
+    return null; 
+  }
+
+  return Number(value.toFixed(1));
 }
 
 /* ============================================================
@@ -196,5 +202,11 @@ export function computeScoreTechno(taux_techno) {
    → Moyenne des taux de réussite disponibles
 ============================================================ */
 export function computeScorePro(taux_pro) {
-  return mean(extractTaux(taux_pro));
+  const value = mean(extractTaux(taux_pro));
+
+  if (value === null || value === undefined || isNaN(value)) {
+    return null; 
+  }
+
+  return Number(value.toFixed(1));
 }
