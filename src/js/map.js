@@ -451,6 +451,11 @@ function updateLyceesList(map, filters) {
         expand.style.maxHeight = expand.scrollHeight + "px";
         expand.classList.remove("open");
         lyceeTop.classList.remove('active');
+        if (l.marker && activeMarker === l.marker) {
+          l.marker.setIcon(schoolIcon);
+          activeMarker = null;
+          l.marker.closePopup();
+        }
         setTimeout(() => { expand.style.maxHeight = null; }, 10);
       }
    });
@@ -680,6 +685,14 @@ export function renderLycees(geojsonData, filters, map) {
       //   console.log(props);
       //   console.groupEnd();
       // });
+
+      marker.on("popupclose", () => {
+        if (activeMarker === marker) {
+          marker.setIcon(schoolIcon);
+          activeMarker = null;
+        }
+      });
+      
       marker.on("click", () => {
         selectLycee(marker, latlng.lat, latlng.lng, map);
       });
