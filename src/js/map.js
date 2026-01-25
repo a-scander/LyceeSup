@@ -12,7 +12,6 @@ const PARIS_DEFAULT = {
     latlng: [48.8566, 2.3522],
     zoom: 13
   };
-
 const LIST_STEP = 30;
 
 
@@ -24,14 +23,28 @@ let userLatLng = null;
 let lyceesAffiches = [];
 let listLimit = 30;
 let activeMarker = null;
+let isLoadingForMarker = false;
 let geolocationDenied = false;
 
+
+
+export function isGeolocationDenied() {
+  return geolocationDenied;
+}
+
+export function loadMoreLycees(map, filters) {
+  listLimit += LIST_STEP;
+  updateLyceesList(map, filters);
+}
+
+export function getUserLatLng() {
+  return userLatLng;
+}
 
 
 /* ============================================================
 Fonction qui initialise la carte
 ============================================================ */
-
 export function initMap() {
   const map = L.map("map", {
       center: PARIS_DEFAULT.latlng,
@@ -103,10 +116,6 @@ function setupGeolocation(map) {
 
 }
 
-export function isGeolocationDenied() {
-  return geolocationDenied;
-}
-
 /* ============================================================
 Fonction qui gère la distance entre l'utilisateur et les lycées
 ============================================================ */
@@ -133,6 +142,7 @@ export function createLyceesCluster() {
     }
   });
 }
+
 /* ============================================================
 Fonction qui gère la pop up lors du clique sur les lycées
 ============================================================ */
@@ -227,12 +237,14 @@ function buildCardLyceeList(props) {
   `;
 }
 
+/* ============================================================
+Fonction qui construit et affiche la fiche détaillée d’un lycée
+============================================================ */
 function buildLyceeDetails(props) {
   const adresse = props.adresse ?? "—";
   const commune = props.commune ?? "—";
   const telephone = props.telephone ?? "—";
   const web = props.web ?? null;
-  const statut = props.statut_public_prive ?? "—";
   const hebergement = props.hebergement === 1 ? "Oui" : "Non";
   const restauration = props.restauration === 1 ? "Oui" : "Non";
   const apprentissage = props.apprentissage === "1" ? "Oui" : "Non";
@@ -296,12 +308,9 @@ function buildLyceeDetails(props) {
   `;
 }
 
-
-
 /* ============================================================
-ssss
+Fonction qui sélectionne un lycée sur la carte et affiche ses détails
 ============================================================ */
-
 function selectLycee(marker, lat, lng, map) {
   if (activeMarker && activeMarker !== marker) {
     activeMarker.setIcon(schoolIcon);
@@ -324,8 +333,9 @@ function selectLycee(marker, lat, lng, map) {
   openLyceeInList(marker, map);
 }
 
-let isLoadingForMarker = false; // ✅ Global flag (ajoutez après variables)
-
+/* ============================================================
+Fonction qui ouvre et met en évidence le lycée sélectionné dans la liste des résultats
+============================================================ */
 function openLyceeInList(marker, map) {
   if (isLoadingForMarker) return; // Évite boucle
   
@@ -348,20 +358,18 @@ function openLyceeInList(marker, map) {
     return title === lyceeData.nom_etablissement;
   });
 
-  // ✅ SI PAS DANS LISTE → CHARGE + RETRY
   if (!item) {
     const index = lyceesAffiches.findIndex(l => l.marker === marker);
-    listLimit = Math.max(listLimit, index + LIST_STEP + 10); // + marge
+    listLimit = Math.max(listLimit, index + LIST_STEP + 10); 
     updateLyceesList(map, {});
     
     setTimeout(() => {
       isLoadingForMarker = false;
-      openLyceeInList(marker, map); // Retry
+      openLyceeInList(marker, map); 
     }, 350);
     return;
   }
 
-  // ✅ OUVRE (trouvé)
   const expand = item.querySelector('.lycee-expand');
   const lyceeTop = item.querySelector('.lycee-top');
 
@@ -466,6 +474,9 @@ function updateLyceesList(map, filters) {
   };
 }
 
+/* ============================================================
+Fonction qui affiche la liste des lycées présents sur la carte, triés selon le profil de l’utilisateur
+============================================================ */
 function sortLycees(lycees, filters) {
   const profil = filters?.profil || "equilibre";
 
@@ -510,12 +521,6 @@ function sortLycees(lycees, filters) {
     return mixB - mixA; 
   });
 }
-
-export function loadMoreLycees(map, filters) {
-  listLimit += LIST_STEP;
-  updateLyceesList(map, filters);
-}
-
 
 /* ============================================================
 Vérifie si un lycée (feature GeoJSON) correspond aux filtres sélectionnés.
@@ -651,11 +656,9 @@ function matchesFilters(feature, filters) {
   return true;
 }
 
-
 /* ============================================================
 Met à jour dynamiquement les marqueurs des lycées sur la carte en fonction des filtres sélectionnés
 ============================================================ */
-
 export function renderLycees(geojsonData, filters, map) {
   lyceesCluster.clearLayers();
 
@@ -696,8 +699,4 @@ export function renderLycees(geojsonData, filters, map) {
   listLimit = LIST_STEP;
   updateLyceesList(map, filters);
 
-}
-
-export function getUserLatLng() {
-  return userLatLng;
 }
