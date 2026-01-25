@@ -14,7 +14,6 @@ const PARIS_DEFAULT = {
   };
 const LIST_STEP = 30;
 
-
 /* ============================================================
 VARIABLES
 ============================================================ */
@@ -41,6 +40,22 @@ export function getUserLatLng() {
   return userLatLng;
 }
 
+export function closeActiveLycee() {
+  if (activeMarker) {
+    activeMarker.setIcon(schoolIcon);
+    activeMarker.closePopup();
+    activeMarker = null;
+  }
+
+  document.querySelectorAll(".lycee-expand.open").forEach(el => {
+    el.classList.remove("open");
+    el.style.maxHeight = null;
+  });
+
+  document.querySelectorAll('.lycee-top.active').forEach(top => {
+    top.classList.remove('active');
+  });
+}
 
 /* ============================================================
 Fonction qui initialise la carte
@@ -85,7 +100,6 @@ export function initMap() {
 
   return map;
 }
-
 
 /* ============================================================
 Fonction qui gère la géolocalisation
@@ -690,6 +704,13 @@ export function renderLycees(geojsonData, filters, map) {
         if (activeMarker === marker) {
           marker.setIcon(schoolIcon);
           activeMarker = null;
+          document.querySelectorAll(".lycee-expand.open").forEach(el => {
+            el.classList.remove("open");
+            el.style.maxHeight = null;
+          });
+           document.querySelectorAll(".lycee-top.active").forEach(el => {
+            el.classList.remove("active");
+          });
         }
       });
       

@@ -1,4 +1,4 @@
-import { initMap, renderLycees, getUserLatLng,loadMoreLycees, isGeolocationDenied } from "./map.js";
+import { initMap, renderLycees, getUserLatLng,loadMoreLycees, isGeolocationDenied, closeActiveLycee } from "./map.js";
 import { loadGeoJSON } from "./data.js";
 import {resetFilters,initOptionDropdowns,resetFormationFields } from "./ui.js"
 
@@ -142,6 +142,13 @@ window.onload = async () => {
     modal.style.display = "none";
     const profil = document.querySelector('#profilModal input[name="userProfil"]:checked').value;
     headerBtn.textContent = formatProfilLabel(profil);
+
+    map.flyTo(getUserLatLng(), 16, {
+        duration: 1.2,
+        easeLinearity: 0.25
+      });
+
+    closeActiveLycee();
 
     renderLycees(geojson, getFilters(), map);
   });
