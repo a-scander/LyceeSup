@@ -650,7 +650,7 @@ input[type="radio"] {
 .lycee-ico{ width:16px; height:16px; object-fit:contain; flex:0 0 auto; }
 .lycee-badges{ display:flex; gap:8px; margin-top:4px; margin-bottom: 8px;  flex-wrap:wrap; }
 .badge{ font-size:12px; padding:3px 8px; border-radius:999px; font-weight:600; }
-.badge-grey{ background:#f1f3f5; color:#555; }
+.badge-grey{ background:rgba(20, 184, 166, 0.08); color:#555; }
 .badge-blue{ background:#e7f0ff; color:#2f6feb; }
 
 @media (max-width: 768px){

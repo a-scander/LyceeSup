@@ -77,7 +77,7 @@
         <div id="blocGeneral" style="display:none;">
           <div class="group">
 
-            <div class="group-title">Options (général)</div>
+            <div class="group-title">Options</div>
                     
             <div class="field">
               <div id="specialitesGeneralList"></div>
@@ -98,15 +98,16 @@
                 </span>
               </span>
             </div>
-          <input id="tauxMinGeneral" name="tauxMinGeneral" type="number" min="0" max="100" step="1" placeholder="ex: 95">
-          </label>
+          <input id="tauxMinGeneral" name="tauxMinGeneral" type="number" min="0" max="100" step="1" placeholder="95" oninput="this.value = Math.min(100, Math.max(0, this.value))">
+          <span>%</span>  
+        </label>
           </div>
         </div>
         
     
         <div id="blocTechno" style="display:none;">
           <div class="group">
-            <div class="group-title">Séries technologiques</div>
+            <div class="group-title">Filières</div>
             <div class="field">
               <div id="specialitesTechnoList"></div>
             </div>
@@ -126,14 +127,16 @@
                   </span>
                 </span>
               </div>
-                            <input id="tauxMinTechno" name="tauxMinTechno" type="number" min="0" max="100" step="1" placeholder="95">
-            </div>
+           
+                <input id="tauxMinTechno" name="tauxMinTechno" type="number" min="0" max="100" step="1" placeholder="95" oninput="this.value = Math.min(100, Math.max(0, this.value))">
+                <span>%</span>  
+              </div>
           </div>
         </div>
         
         <div id="blocPro" style="display:none;">
           <div class="group">
-            <div class="group-title">Filière professionnelles</div>
+            <div class="group-title">Filières</div>
             <div class="field">
               <div id="specialitesProList"></div>
             </div>
@@ -153,7 +156,8 @@
                   </span>
                 </span>
               </div>
-                            <input id="tauxMinPro" name="tauxMinPro" type="number" min="0" max="100" step="1" placeholder="90">
+                <input id="tauxMinPro" name="tauxMinPro" type="number" min="0" max="100" step="1" placeholder="95" oninput="this.value = Math.min(100, Math.max(0, this.value))">
+                <span>%</span>  
             </div>
           </div>
         </div>
@@ -188,10 +192,10 @@
     <div id="resultsPopup" class="results-popup ">
       <div class="results-header">
         <div class="results-title">
-        <img src="assets/icons/list.png" alt="liste" class="results-icon">
+        <img src="assets/icons/logovertsansfond.png" alt="liste" class="results-icon">
         <span id="lycees-count">0</span> lycées trouvés
         <button id="resultsToggle" class="results-toggle" type="button" aria-expanded="true" aria-controls="resultsBody">
-          ▶
+          ▼
         </button>
       </div>
       

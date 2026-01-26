@@ -174,7 +174,7 @@ Fonction qui gère la carte du lycée
 ============================================================ */
 function buildCardLyceeList(props) {
   const nom = props.nom_etablissement ?? "Lycée";
-  const ville = props.commune ?? "—";
+  const ville = props.code_postal + " " + props.commune ?? "—";
 
   // Voies (un lycée peut en avoir plusieurs)
   const voies = [];
@@ -267,11 +267,10 @@ function buildLyceeDetails(props) {
   if (props.voie_generale === "1") voies.push("Général");
   if (props.voie_technologique === "1") voies.push("Techno");
   if (props.voie_professionnelle === "1") voies.push("Pro");
-  const voiesBubbles = voies.map(v => `<span class="badge badge-grey">${v}</span>`).join('') || "—";
   
-  const specsGenBubbles = (props.optionGenerale || []).slice(0, 8).map(s => `<span class="badge badge-grey">${s.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')}</span>`).join('');
-  const specsTechBubbles = (props.optionTechno || []).slice(0, 8).map(s => `<span class="badge badge-grey">${s.toUpperCase()}</span>`).join('');
-  const specsProBubbles = (props.optionPro || []).slice(0, 8).map(s => {const label = PRO_LABELS[s] || s; return `<span class="badge badge-grey">${label}</span>`}).join('');
+  const specsGenBubbles = (props.optionGenerale || []).sort().map(s => `<span class="badge badge-grey">${s.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')}</span>`).join('');
+  const specsTechBubbles = (props.optionTechno || []).sort().map(s => `<span class="badge badge-grey">${s.toUpperCase()}</span>`).join('');
+  const specsProBubbles = (props.optionPro || []).sort().map(s => {const label = PRO_LABELS[s] || s; return `<span class="badge badge-grey">${label}</span>`}).join('');
   
   return `
     <div class="lycee-details-grid">
@@ -289,11 +288,7 @@ function buildLyceeDetails(props) {
         <img src="assets/icons/web.png" class="detail-ico" alt="">
         <div><strong>Site web</strong><br><a href="${web}" target="_blank">${web}</a></div>
       </div>` : ''}
-      
-      <div class="detail-row full">
-        <div class="detail-label">Types de filières</div>
-        <div class="spec-bubbles">${voiesBubbles}</div>
-      </div>
+
       
       ${specsGenBubbles ? `<div class="detail-row full">
         <div class="detail-label">Spécialités Générales</div>
