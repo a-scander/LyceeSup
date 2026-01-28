@@ -122,7 +122,7 @@ function extractOptionLists(geojson) {
   for (const f of geojson.features || []) {
     const p = f?.properties || {};
 
-    (p.optionGenerale || []).forEach(x => x && general.add(String(x).trim()));
+    (p.optionGenerale || []).forEach(x => x && general.add(String(x).trim().charAt(0).toUpperCase() + x.slice(1).toLowerCase()));
     (p.optionTechno || []).forEach(x => x && techno.add(String(x).trim().toLowerCase()));
     (p.optionPro || []).forEach(x => x && pro.add(String(x).trim().toLowerCase()));
   }
