@@ -18,17 +18,38 @@
       <img src="assets/icons/logovert.png" alt="Logo école" class="logo-img">
       <h1>FindSchool</h1>
     </div>
-    <button class="header-btn"></button>
   </header>
   <div class="main-layout">
     <div class="sidebar">
-
-      <h3 class="sidebar-title">
-        <img src="assets/icons/filtre.png" alt="Filtre" class="filter-icon">
-        Filtres de recherche
-      </h3>
-    
       <form class="filters">
+        <h3 class="sidebar-title">
+          <img src="assets/icons/profil.png" alt="Filtre" class="filter-icon">
+          Profil
+        </h3>
+      
+        <div class="group">
+            <div class="group-title">Profil recherché</div>
+
+            <label class="check">
+              <input type="radio" name="profil" value="equilibre" checked>
+              Équilibre
+            </label>
+
+            <label class="check">
+              <input type="radio" name="profil" value="proximite">
+              Proximité
+            </label>
+
+            <label class="check">
+              <input type="radio" name="profil" value="performance">
+              Performance
+            </label>
+          </div>
+
+        <h3 class="sidebar-title">
+          <img src="assets/icons/filtre.png" alt="Filtre" class="filter-icon">
+          Filtres de recherche
+        </h3>
     
         <div class="group">
           <div class="group-title">Type d’établissement</div>
@@ -210,54 +231,6 @@
     <button id="locateBtn" class="locate-btn" title="Revenir à ma position">
       <img src="assets/icons/marqueurvert.png" alt="Ma position" class="locate-icon">
     </button>
-  </div>
-  <div id="profilModal" class="modal-overlay" style="display: none;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>Choisis ton profil</h2>
-          <button id="closeModal" class="close-btn">×</button>
-        </div>
-        <div class="modal-body">
-          <div class="profil-grid">
-            <label class="profil-card">
-              <input type="radio" name="userProfil" value="equilibre" id="equilibre" checked>
-              <div class="profil-icon">
-                <img src="assets/icons/equilibre.png">
-              </div>
-              <div class="profil-info">
-                <h3>Équilibre</h3>
-                <p>Performance + proximité</p>
-              </div>
-            </label>
-            
-            <label class="profil-card">
-              <input type="radio" name="userProfil" value="proximite" id="proximite">
-              <div class="profil-icon">
-                <img src="assets/icons/proximite.png" >
-              </div>
-              <div class="profil-info">
-                <h3>Proximité</h3>
-                <p>Le plus proche</p>
-              </div>
-            </label>
-            
-            <label class="profil-card">
-              <input type="radio" name="userProfil" value="performance" id="performance">
-              <div class="profil-icon">
-                <img src="assets/icons/etoile.png">
-              </div>
-              <div class="profil-info">
-                <h3>Performance</h3>
-                <p>Meilleurs résultats</p>
-              </div>
-            </label>
-          </div>
-          <div class="modal-actions">
-            <button id="saveProfil" class="btn-primary">Valider</button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </body>
 </html>

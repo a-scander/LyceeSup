@@ -1,12 +1,12 @@
-import { initMap, renderLycees, getUserLatLng,loadMoreLycees, isGeolocationDenied, closeActiveLycee } from "./map.js";
+import { initMap, renderLycees, getUserLatLng,loadMoreLycees, isGeolocationDenied } from "./map.js";
 import { loadGeoJSON } from "./data.js";
 import {resetFilters,initOptionDropdowns,resetFormationFields } from "./ui.js"
 
-const getFilters = () => {
+export const getFilters = () => {
   return {
     statut: document.querySelector('input[name="statut"]:checked')?.value || "",
     voie: document.querySelector('input[name="voie"]:checked')?.value || "",
-    profil: document.querySelector('input[name="userProfil"]:checked')?.value || "",
+    profil: document.querySelector('input[name="profil"]:checked')?.value || "",
 
     services: [
       ...document.querySelectorAll('input[name="services"]:checked')
@@ -30,27 +30,12 @@ const getFilters = () => {
   };
 };
 
-
-function formatProfilLabel(profil) {
-  switch (profil) {
-    case "proximite":
-      return "Proximité";
-    case "performance":
-      return "Performance";
-    default:
-      return "Équilibre";
-  }
-}
-
 window.onload = async () => {
   const map = initMap();
   const geojson = await loadGeoJSON("../data/lycees.geojson");
   const popup = document.getElementById("resultsPopup");
   const toggle = document.getElementById("resultsToggle");
-  const headerBtn = document.querySelector('.header-btn');
-  const modal = document.getElementById('profilModal');
-  const closeModal = document.getElementById('closeModal');
-  const saveProfil = document.getElementById('saveProfil');
+
 
   initOptionDropdowns(geojson);
   renderLycees(geojson, getFilters(), map);
@@ -59,12 +44,16 @@ window.onload = async () => {
   });
 
   if (isGeolocationDenied()) {
-    headerBtn.textContent = "Performance";
-    headerBtn.classList.add("disabled");
-  } else {
-    headerBtn.textContent = "Équilibre";
-  }
-
+  document
+    .querySelectorAll('input[name="profil"]')
+    .forEach(input => {
+      if (input.value !== "performance") {
+        input.disabled = true;
+      } else {
+        input.checked = true;
+      }
+    });
+}
 
   toggle.addEventListener("click", () => {
     const isCollapsed = popup.classList.toggle("is-collapsed");
@@ -115,41 +104,4 @@ window.onload = async () => {
 
   });
 
-  function closeModalFn() {
-    modal.style.display = 'none';
-    document.body.style.overflow = '';
-  }
-
-  headerBtn.addEventListener('click', () => {
-
-    if (isGeolocationDenied()) {
-      alert("Active la localisation pour choisir un autre profil");
-      return;
-    }
-
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-  });
-
-  closeModal.addEventListener('click', closeModalFn);
-  saveProfil.addEventListener('click', closeModalFn);
-
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeModalFn();
-  });
-
-  saveProfil.addEventListener("click", () => {
-    modal.style.display = "none";
-    const profil = document.querySelector('#profilModal input[name="userProfil"]:checked').value;
-    headerBtn.textContent = formatProfilLabel(profil);
-
-    map.flyTo(getUserLatLng(), 16, {
-        duration: 1.2,
-        easeLinearity: 0.25
-      });
-
-    closeActiveLycee();
-
-    renderLycees(geojson, getFilters(), map);
-  });
 };

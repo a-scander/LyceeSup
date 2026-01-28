@@ -1,7 +1,7 @@
 "use strict";
 
 import { homeIcon, schoolIcon,schoolIconActive  } from "./icons.js";
-
+import { getFilters } from "./main.js";
 import { PRO_LABELS } from "./ui.js";
 
 
@@ -254,7 +254,7 @@ function buildCardLyceeList(props) {
 /* ============================================================
 Fonction qui construit et affiche la fiche détaillée d’un lycée
 ============================================================ */
-function buildLyceeDetails(props) {
+function buildLyceeDetails(props, filters = {}) {
   const adresse = props.adresse ?? "—";
   const commune = props.commune ?? "—";
   const telephone = props.telephone ?? "—";
@@ -268,10 +268,50 @@ function buildLyceeDetails(props) {
   if (props.voie_technologique === "1") voies.push("Techno");
   if (props.voie_professionnelle === "1") voies.push("Pro");
   
-  const specsGenBubbles = (props.optionGenerale || []).sort().map(s => `<span class="badge badge-grey">${s.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')}</span>`).join('');
-  const specsTechBubbles = (props.optionTechno || []).sort().map(s => `<span class="badge badge-grey">${s.toUpperCase()}</span>`).join('');
-  const specsProBubbles = (props.optionPro || []).sort().map(s => {const label = PRO_LABELS[s] || s; return `<span class="badge badge-grey">${label}</span>`}).join('');
+  const norm = (s) =>
+  String(s ?? "").trim().toLowerCase();
   
+  const selectedGen = (filters.specialitesGeneral || []).map(norm);
+  const selectedTech = (filters.specialitesTechno || []).map(norm);
+  const selectedPro = (filters.specialitesPro || []).map(norm);
+
+
+  const specsGenBubbles = (props.optionGenerale || [])
+    .sort()
+    .map(s => {
+      const label = s
+        .split(' ')
+        .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+        .join(' ');
+
+      const isSelected = selectedGen.includes(norm(s));
+      const cls = isSelected ? "badge badge-selected" : "badge badge-grey";
+
+      return `<span class="${cls}">${label}</span>`;
+    })
+    .join('');
+
+  const specsTechBubbles = (props.optionTechno || [])
+    .sort()
+    .map(s => {
+      const isSelected = selectedTech.includes(norm(s));
+      const cls = isSelected ? "badge badge-selected" : "badge badge-grey";
+
+      return `<span class="${cls}">${s.toUpperCase()}</span>`;
+    })
+    .join('');
+
+  const specsProBubbles = (props.optionPro || [])
+    .sort()
+    .map(s => {
+      const label = PRO_LABELS[s] || s;
+      const isSelected = selectedPro.includes(norm(s));
+      const cls = isSelected ? "badge badge-selected" : "badge badge-grey";
+
+      return `<span class="${cls}">${label}</span>`;
+    })
+    .join('');
+    
   return `
     <div class="lycee-details-grid">
       <div class="detail-row">
@@ -382,7 +422,7 @@ function openLyceeInList(marker, map) {
   const expand = item.querySelector('.lycee-expand');
   const lyceeTop = item.querySelector('.lycee-top');
 
-  expand.innerHTML = buildLyceeDetails(lyceeData);
+  expand.innerHTML = buildLyceeDetails(lyceeData, getFilters());
   const scrollHeight = expand.scrollHeight + 32;
   expand.classList.add('open');
   expand.style.maxHeight = scrollHeight + 'px';
@@ -430,60 +470,70 @@ function updateLyceesList(map, filters) {
       <div class="lycee-expand"></div>
       `;
 
-
-   li.addEventListener('click', function(e) {
+    const expand = li.querySelector(".lycee-expand");
+   
+    expand.addEventListener("click", (e) => {
       e.stopPropagation();
+    });
 
-      const expand = li.querySelector(".lycee-expand");
-      const lyceeTop = li.querySelector(".lycee-top");
-      const isOpen = expand.classList.contains("open");
+    li.addEventListener('click', function(e) {
+        e.stopPropagation();
 
-      document.querySelectorAll(".lycee-expand.open").forEach(el => {
-        if (el !== expand) {
-          el.classList.remove("open");
-          el.style.maxHeight = null;
+        const isOpen = expand.classList.contains("open");
+        const lyceeTop = li.querySelector(".lycee-top"); 
+
+        document.querySelectorAll(".lycee-expand.open").forEach(el => {
+          if (el !== expand) {
+            el.classList.remove("open");
+            el.style.maxHeight = null;
+          }
+        });
+
+        if (!isOpen) {
+          expand.innerHTML = buildLyceeDetails(l, getFilters());
+          const scrollHeight = expand.scrollHeight + 32;
+          expand.classList.add("open");
+          expand.style.maxHeight = scrollHeight + "px";
+
+          lyceeTop.classList.add('active'); 
+          
+          li.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          
+          if (l.marker) selectLycee(l.marker, l.lat, l.lng, map);
+        } else {
+          expand.style.maxHeight = expand.scrollHeight + "px";
+          expand.classList.remove("open");
+          lyceeTop.classList.remove('active');
+          if (l.marker && activeMarker === l.marker) {
+            l.marker.setIcon(schoolIcon);
+            activeMarker = null;
+            l.marker.closePopup();
+          }
+          setTimeout(() => { expand.style.maxHeight = null; }, 10);
         }
-      });
+    });
 
-       if (!isOpen) {
-        expand.innerHTML = buildLyceeDetails(l);
-        const scrollHeight = expand.scrollHeight + 32;
-        expand.classList.add("open");
-        expand.style.maxHeight = scrollHeight + "px";
-
-        lyceeTop.classList.add('active'); 
-        
-        li.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        
-        if (l.marker) selectLycee(l.marker, l.lat, l.lng, map);
-      } else {
-        expand.style.maxHeight = expand.scrollHeight + "px";
-        expand.classList.remove("open");
-        lyceeTop.classList.remove('active');
-        if (l.marker && activeMarker === l.marker) {
-          l.marker.setIcon(schoolIcon);
-          activeMarker = null;
-          l.marker.closePopup();
-        }
-        setTimeout(() => { expand.style.maxHeight = null; }, 10);
-      }
-   });
-
-    ul.appendChild(li);
-  });
+      ul.appendChild(li);
+    });
 
   let loadingMore = false;
-  ul.onscroll = function() {
+  ul.onscroll = function () {
     if (loadingMore) return;
-    
+
     const { scrollTop, scrollHeight, clientHeight } = ul;
+
+    const hasOpen = ul.querySelector(".lycee-expand.open");
+    if (hasOpen) return;
 
     if (scrollTop + clientHeight >= scrollHeight - 50) {
       loadingMore = true;
-      
+
       listLimit += LIST_STEP;
-      updateLyceesList(map, filters); 
-      setTimeout(() => { loadingMore = false; }, 500);
+      updateLyceesList(map, filters);
+
+      setTimeout(() => {
+        loadingMore = false;
+      }, 500);
     }
   };
 }
@@ -544,6 +594,10 @@ function matchesFilters(feature, filters) {
 
   const toNum01 = (v) => (Number(v) === 1 ? 1 : 0);
   const norm = (s) => String(s ?? "").trim();
+  const normGeneral = (s) => {
+  const str = String(s ?? "").trim().toLowerCase();
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
   const normLower = (s) => norm(s).toLowerCase();
 
   // -----------------------
@@ -588,7 +642,7 @@ function matchesFilters(feature, filters) {
   // -----------------------
   // 2) Données options
   // -----------------------
-  const optionsGen = (p.optionGenerale || []).map(norm);
+  const optionsGen = (p.optionGenerale || []).map(normGeneral);
   const optionsTech = (p.optionTechno || []).map(normLower);
   const optionsPro = (p.optionPro || []).map(normLower);
 
@@ -599,7 +653,7 @@ function matchesFilters(feature, filters) {
   // 3) Voie générale (options ET + taux global)
   // -----------------------
   if (filters.voie === "generale") {
-    const selected = (filters.specialitesGeneral || []).map(norm);
+    const selected = (filters.specialitesGeneral || []).map(normGeneral);
 
     const okOptions = selected.length === 0 ? true : selected.every((s) => optionsGen.includes(s));
 
