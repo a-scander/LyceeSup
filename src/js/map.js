@@ -728,6 +728,11 @@ function matchesFilters(feature, filters) {
 Met à jour dynamiquement les marqueurs des lycées sur la carte en fonction des filtres sélectionnés
 ============================================================ */
 export function renderLycees(geojsonData, filters, map) {
+  if (activeMarker) {
+    activeMarker.setIcon(schoolIcon);
+    activeMarker = null;
+  }
+
   lyceesCluster.clearLayers();
 
   lyceesAffiches = [];
