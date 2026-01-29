@@ -536,15 +536,6 @@ input[type="radio"] {
 .badge-blue{ background:#e7f0ff; color:#2f6feb; }
 .badge-selected { background-color: #F68937; color: white; font-weight: 600; }
 
-@media (max-width: 768px){
-      
-  .map{
-    left: 0;
-    top: 45vh;       
-    height: 55vh;
-  }
-}
-
 .badge-rate {
   font-weight: 600;
   margin-left: 6px;
@@ -559,4 +550,13 @@ input[type="radio"] {
   height: 14px;
   margin: 0 4px 0 6px;
   vertical-align: middle;
+}
+
+@media (max-width: 768px){
+      
+  .map{
+    left: 0;
+    top: 45vh;       
+    height: 55vh;
+  }
 }

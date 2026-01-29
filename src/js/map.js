@@ -184,9 +184,7 @@ export function createLyceesCluster() {
   return L.markerClusterGroup({
     // Plus de regroupement à partir du zoom 16
     disableClusteringAtZoom: 16,
-    spiderfyOnMaxZoom: false,
-    zoomToBoundsOnClick: false,
-    showCoverageOnHover: false,
+    
     // Retourner une icône pour un cluster
     iconCreateFunction: function (cluster) {
       const count = cluster.getChildCount();
