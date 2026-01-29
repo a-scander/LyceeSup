@@ -1,11 +1,20 @@
 "use strict";
 
+/* ============================================================
+Icône représentant la position de l'utilisateur (domicile)
+============================================================ */
+
 export const homeIcon = L.icon({
     iconUrl: "./assets/icons/house.png",// chemin vers l'image de l'icône
     iconSize: [40, 40],// taille de l'icône (largeur, hauteur)
     iconAnchor: [20, 40],// point de l'icône correspondant à la position GPS (le clou)
     popupAnchor: [0, -40]// position de la popup par rapport à l'icône
 });
+
+
+/* ============================================================
+Icône représentant une école (état normal)
+============================================================ */
 
 export const schoolIcon = L.divIcon({
     className: "school-marker",
@@ -17,6 +26,10 @@ export const schoolIcon = L.divIcon({
     popupAnchor: [0, -40]
   });
   
+
+  /* ============================================================
+Icône représentant une école (état actif / sélectionné)
+============================================================ */
   export const schoolIconActive = L.divIcon({
     className: "school-marker active",
     html: `<div class="school-marker-inner active"></div>`,

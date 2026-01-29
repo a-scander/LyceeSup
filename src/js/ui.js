@@ -136,7 +136,7 @@ function extractOptionLists(geojson) {
 
 
 /* ============================================================
-Init dropdowns dynamiques
+Initialise les listes de filtres à partir des données GeoJSON
 ============================================================ */
 export function initOptionDropdowns(geojson) {
   const lists = extractOptionLists(geojson);

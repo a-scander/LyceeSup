@@ -39,6 +39,7 @@ window.onload = async () => {
 
   initOptionDropdowns(geojson);
   renderLycees(geojson, getFilters(), map);
+  
   map.on("locationfound", () => {
     renderLycees(geojson, getFilters(), map);
   });
