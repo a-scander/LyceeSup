@@ -167,7 +167,9 @@ Fonction qui gère la géolocalisation
 export function createLyceesCluster() {
   return L.markerClusterGroup({  //MarkerClusterGroup permet de regrouper automatiquement les markers proches
     disableClusteringAtZoom: 16,  // plus de regroupement à partir du zoom 16
-
+    spiderfyOnMaxZoom: false,
+    zoomToBoundsOnClick: false,
+    showCoverageOnHover: false,
     iconCreateFunction: function (cluster) { //retourner une icône pour un cluster.
       const count = cluster.getChildCount(); 
 
@@ -197,7 +199,10 @@ Fonction qui gère la carte du lycée
 ============================================================ */
 function buildCardLyceeList(props) {
   const nom = props.nom_etablissement ?? "Lycée";
-  const ville = props.code_postal + " " + props.commune ?? "—";
+  const ville = (props.code_postal && props.commune)
+  ? `${props.code_postal} ${props.commune}`
+  : "—";
+
 
   // Voies (un lycée peut en avoir plusieurs)
   const voies = [];
