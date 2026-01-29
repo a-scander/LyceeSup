@@ -1,42 +1,42 @@
 "use strict";
 
-import { homeIcon, schoolIcon,schoolIconActive  } from "./icons.js";
+import { homeIcon, schoolIcon, schoolIconActive } from "./icons.js";
 import { getFilters } from "./main.js";
 import { PRO_LABELS } from "./ui.js";
 
-  const TECH_RATE_KEY = {
-    sti2d: "taux_reu_sti2d",
-    std2a: "taux_reu_std2a",
-    stmg: "taux_reu_stmg",
-    stl: "taux_reu_stl",
-    st2s: "taux_reu_st2s",
-    s2tmd: "taux_reu_s2tmd",
-    sthr: "taux_reu_sthr"
-  };
+const TECH_RATE_KEY = {
+  sti2d: "taux_reu_sti2d",
+  std2a: "taux_reu_std2a",
+  stmg: "taux_reu_stmg",
+  stl: "taux_reu_stl",
+  st2s: "taux_reu_st2s",
+  s2tmd: "taux_reu_s2tmd",
+  sthr: "taux_reu_sthr"
+};
 
-  const PRO_RATE_KEY = {
-    pluri_techno: "taux_reu_pluri_techno",
-    transfo: "taux_reu_transfo",
-    genie_civil: "taux_reu_genie_civil",
-    mat_souples: "taux_reu_mat_souples",
-    meca_elec: "taux_reu_meca_elec",
-    production: "taux_reu_production",
-    pluri_services: "taux_reu_pluri_services",
-    echanges: "taux_reu_echanges",
-    communication: "taux_reu_communication",
-    serv_personnes: "taux_reu_serv_personnes",
-    serv_collec: "taux_reu_serv_collec",
-    services: "taux_reu_services"
-  };
-
+const PRO_RATE_KEY = {
+  pluri_techno: "taux_reu_pluri_techno",
+  transfo: "taux_reu_transfo",
+  genie_civil: "taux_reu_genie_civil",
+  mat_souples: "taux_reu_mat_souples",
+  meca_elec: "taux_reu_meca_elec",
+  production: "taux_reu_production",
+  pluri_services: "taux_reu_pluri_services",
+  echanges: "taux_reu_echanges",
+  communication: "taux_reu_communication",
+  serv_personnes: "taux_reu_serv_personnes",
+  serv_collec: "taux_reu_serv_collec",
+  services: "taux_reu_services"
+};
 
 /* ============================================================
 CONSTANTES
 ============================================================ */
 const PARIS_DEFAULT = {
-    latlng: [48.8566, 2.3522],
-    zoom: 13
-  };
+  latlng: [48.8566, 2.3522],
+  zoom: 13
+};
+
 const LIST_STEP = 30;
 
 /* ============================================================
@@ -50,21 +50,31 @@ let activeMarker = null;
 let isLoadingForMarker = false;
 let geolocationDenied = false;
 
-
-
+/* ============================================================
+Fonction qui indique si la géolocalisation a été refusée
+============================================================ */
 export function isGeolocationDenied() {
   return geolocationDenied;
 }
 
+/* ============================================================
+Fonction qui charge plus de lycées dans la liste
+============================================================ */
 export function loadMoreLycees(map, filters) {
   listLimit += LIST_STEP;
   updateLyceesList(map, filters);
 }
 
+/* ============================================================
+Fonction qui récupère la position de l’utilisateur
+============================================================ */
 export function getUserLatLng() {
   return userLatLng;
 }
 
+/* ============================================================
+Fonction qui ferme le lycée actif (popup + surbrillance liste)
+============================================================ */
 export function closeActiveLycee() {
   if (activeMarker) {
     activeMarker.setIcon(schoolIcon);
@@ -77,8 +87,8 @@ export function closeActiveLycee() {
     el.style.maxHeight = null;
   });
 
-  document.querySelectorAll('.lycee-top.active').forEach(top => {
-    top.classList.remove('active');
+  document.querySelectorAll(".lycee-top.active").forEach(top => {
+    top.classList.remove("active");
   });
 }
 
@@ -87,24 +97,28 @@ Fonction qui initialise la carte
 ============================================================ */
 export function initMap() {
   const map = L.map("map", {
-      center: PARIS_DEFAULT.latlng,
-      zoom: PARIS_DEFAULT.zoom,
-      zoomControl: false 
-    });
-  
+    center: PARIS_DEFAULT.latlng,
+    zoom: PARIS_DEFAULT.zoom,
+    zoomControl: false
+  });
 
-    L.control.zoom({      // Mettre les boutons de zoom en bas à droite
-      position: "bottomright"
-    }).addTo(map);
-  
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      subdomains: 'abcd',
+  // Mettre les boutons de zoom en bas à droite
+  L.control.zoom({
+    position: "bottomright"
+  }).addTo(map);
+
+  L.tileLayer(
+    "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+    {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      subdomains: "abcd",
       maxZoom: 20
-    }).addTo(map);
-   
-      lyceesCluster = createLyceesCluster();
-      map.addLayer(lyceesCluster);
+    }
+  ).addTo(map);
+
+  lyceesCluster = createLyceesCluster();
+  map.addLayer(lyceesCluster);
 
   setupGeolocation(map);
 
@@ -117,9 +131,10 @@ export function initMap() {
     document.querySelectorAll(".lycee-expand.open").forEach(el => {
       el.classList.remove("open");
       el.style.maxHeight = null;
-      document.querySelectorAll('.lycee-top.active').forEach(top => {
-      top.classList.remove('active');
-    });
+
+      document.querySelectorAll(".lycee-top.active").forEach(top => {
+        top.classList.remove("active");
+      });
     });
   });
 
@@ -130,31 +145,31 @@ export function initMap() {
 Fonction qui gère la géolocalisation
 ============================================================ */
 function setupGeolocation(map) {
-  
-    map.locate(); // Demande la position de l'utilisateur
+  // Demande la position de l'utilisateur
+  map.locate();
 
-    map.on("locationfound", (e) => {   // Événement déclenché quand la position est trouvée
+  // Événement déclenché quand la position est trouvée
+  map.on("locationfound", (e) => {
+    userLatLng = e.latlng;
 
-      userLatLng = e.latlng;
-      map.flyTo(e.latlng, 16, {
-        duration: 1.2,
-        easeLinearity: 0.25
-      });
-
-      L.marker(e.latlng, { icon: homeIcon })
-        .addTo(map)
-  });
-
-  map.on("locationerror", (e) => {      // Événement déclenché si la géolocalisation échoue, on met Paris par défaut
-    console.warn("Géolocalisation impossible :", e.message);
-    geolocationDenied = true;
-    map.setView(PARIS_DEFAULT.latlng, PARIS_DEFAULT.zoom);  
+    map.flyTo(e.latlng, 16, {
+      duration: 1.2,
+      easeLinearity: 0.25
     });
 
+    L.marker(e.latlng, { icon: homeIcon }).addTo(map);
+  });
+
+  // Événement déclenché si la géolocalisation échoue (Paris par défaut)
+  map.on("locationerror", (e) => {
+    console.warn("Géolocalisation impossible :", e.message);
+    geolocationDenied = true;
+    map.setView(PARIS_DEFAULT.latlng, PARIS_DEFAULT.zoom);
+  });
 }
 
 /* ============================================================
-Fonction qui gère la distance entre l'utilisateur et les lycées
+Fonction qui calcule la distance entre l'utilisateur et un lycée
 ============================================================ */
 function calculateDistanceKm(fromLatLng, toLatLng) {
   if (!fromLatLng) return null;
@@ -162,16 +177,19 @@ function calculateDistanceKm(fromLatLng, toLatLng) {
 }
 
 /* ============================================================
-Fonction qui gère la géolocalisation
+Fonction qui crée le cluster des lycées
 ============================================================ */
 export function createLyceesCluster() {
-  return L.markerClusterGroup({  //MarkerClusterGroup permet de regrouper automatiquement les markers proches
-    disableClusteringAtZoom: 16,  // plus de regroupement à partir du zoom 16
+  // MarkerClusterGroup permet de regrouper automatiquement les markers proches
+  return L.markerClusterGroup({
+    // Plus de regroupement à partir du zoom 16
+    disableClusteringAtZoom: 16,
     spiderfyOnMaxZoom: false,
     zoomToBoundsOnClick: false,
     showCoverageOnHover: false,
-    iconCreateFunction: function (cluster) { //retourner une icône pour un cluster.
-      const count = cluster.getChildCount(); 
+    // Retourner une icône pour un cluster
+    iconCreateFunction: function (cluster) {
+      const count = cluster.getChildCount();
 
       return L.divIcon({
         html: `<div class="cluster-circle">${count}</div>`,
@@ -191,18 +209,17 @@ function buildLyceePopup(props) {
       <h3 class="popup-title">${props.nom_etablissement ?? "Lycée"}</h3>
     </div>
   `;
-  
 }
 
 /* ============================================================
-Fonction qui gère la carte du lycée
+Fonction qui construit la carte d’un lycée dans la liste
 ============================================================ */
 function buildCardLyceeList(props) {
   const nom = props.nom_etablissement ?? "Lycée";
-  const ville = (props.code_postal && props.commune)
-  ? `${props.code_postal} ${props.commune}`
-  : "—";
-
+  const ville =
+    (props.code_postal && props.commune)
+      ? `${props.code_postal} ${props.commune}`
+      : "—";
 
   // Voies (un lycée peut en avoir plusieurs)
   const voies = [];
@@ -283,7 +300,6 @@ function buildCardLyceeList(props) {
 /* ============================================================
 Fonction qui construit et affiche la fiche détaillée d’un lycée
 ============================================================ */
-
 function buildLyceeDetails(props, filters = {}) {
   const adresse = props.adresse ?? "—";
   const commune = props.commune ?? "—";
@@ -304,17 +320,8 @@ function buildLyceeDetails(props, filters = {}) {
   const selectedTech = (filters.specialitesTechno || []).map(norm);
   const selectedPro = (filters.specialitesPro || []).map(norm);
 
-  /* ============================================================
-  Utilitaire pour afficher un taux proprement
-  - number -> "93%"
-  - null/undefined -> "—"
-  ============================================================ */
+  // Utilitaire pour afficher un taux proprement
   const rateLabel = (n) => (n === null || n === undefined ? "—" : `${n}%`);
-
-
-  /* ============================================================
-  Taux Général : affiché une seule fois au-dessus
-  ============================================================ */
 
   const specsGenBubbles = (props.optionGenerale || [])
     .sort()
@@ -331,34 +338,29 @@ function buildLyceeDetails(props, filters = {}) {
     })
     .join("");
 
-  /* ============================================================
-  Spécialités Techno : taux à côté de chaque série
-  ============================================================ */
   const specsTechBubbles = (props.optionTechno || [])
     .sort()
     .map((s) => {
       const isSelected = selectedTech.includes(norm(s));
       const cls = isSelected ? "badge badge-selected" : "badge badge-grey";
 
-      const key = TECH_RATE_KEY[s]; // ex: "stmg" -> "taux_reu_stmg"
+      const key = TECH_RATE_KEY[s];
       const rate = rateLabel(props.taux_techno?.[key]);
+
       const trophyIcon = isSelected
-      ? "assets/icons/trophyor.png"
-      : "assets/icons/trophyvert.png";
-    
+        ? "assets/icons/trophyor.png"
+        : "assets/icons/trophyvert.png";
+
       return `
       <span class="${cls}">
         ${s.toUpperCase()}
         <img src="${trophyIcon}" class="rate-ico" alt="">
         ${rate}
       </span>
-    `;    
-  })
+    `;
+    })
     .join("");
 
-  /* ============================================================
-  Spécialités Pro : taux à côté de chaque filière
-  ============================================================ */
   const specsProBubbles = (props.optionPro || [])
     .sort()
     .map((s) => {
@@ -371,17 +373,16 @@ function buildLyceeDetails(props, filters = {}) {
       const rate = rateLabel(props.taux_pro?.[key]);
 
       const trophyIcon = isSelected
-      ? "assets/icons/trophyor.png"
-      : "assets/icons/trophyvert.png";
-    
-    return `
+        ? "assets/icons/trophyor.png"
+        : "assets/icons/trophyvert.png";
+
+      return `
       <span class="${cls}">
         ${label}
         <img src="${trophyIcon}" class="rate-ico" alt="">
         ${rate}
       </span>
     `;
-
     })
     .join("");
 
@@ -431,7 +432,6 @@ function buildLyceeDetails(props, filters = {}) {
   `;
 }
 
-
 /* ============================================================
 Fonction qui sélectionne un lycée sur la carte et affiche ses détails
 ============================================================ */
@@ -440,32 +440,34 @@ function selectLycee(marker, lat, lng, map) {
     activeMarker.setIcon(schoolIcon);
   }
 
- if (marker !== activeMarker) { 
+  if (marker !== activeMarker) {
     marker.setIcon(schoolIconActive);
     activeMarker = marker;
-    
+
     map.flyTo([lat, lng], 16, {
-      duration: 0.8,        
-      easeLinearity: 0.25, 
-      noMoveStart: false    
+      duration: 0.8,
+      easeLinearity: 0.25,
+      noMoveStart: false
     });
+
     setTimeout(() => marker.openPopup(), 850);
   } else {
-    
     setTimeout(() => marker.openPopup(), 50);
   }
+
   openLyceeInList(marker, map);
 }
 
 /* ============================================================
-Fonction qui ouvre et met en évidence le lycée sélectionné dans la liste des résultats
+Fonction qui ouvre et met en évidence le lycée sélectionné dans la liste
 ============================================================ */
 function openLyceeInList(marker, map) {
-  if (isLoadingForMarker) return; // Évite boucle
+  // Évite boucle
+  if (isLoadingForMarker) return;
   isLoadingForMarker = true;
 
   // Ferme tous les autres
-  document.querySelectorAll('.lycee-expand.open').forEach(el => {
+  document.querySelectorAll(".lycee-expand.open").forEach(el => {
     el.classList.remove("open");
     el.style.maxHeight = null;
   });
@@ -476,41 +478,43 @@ function openLyceeInList(marker, map) {
     return;
   }
 
-  let item = Array.from(document.querySelectorAll('.lycee-item')).find(li => {
-    
-    const uai = li.querySelector('.uai_lycee')?.textContent.trim();
+  let item = Array.from(document.querySelectorAll(".lycee-item")).find(li => {
+    const uai = li.querySelector(".uai_lycee")?.textContent.trim();
     return uai === lyceeData.uai;
   });
 
   if (!item) {
     const index = lyceesAffiches.findIndex(l => l.marker === marker);
-    listLimit = Math.max(listLimit, index + LIST_STEP + 10); 
+
+    listLimit = Math.max(listLimit, index + LIST_STEP + 10);
     updateLyceesList(map, {});
-    
+
     setTimeout(() => {
       isLoadingForMarker = false;
-      openLyceeInList(marker, map); 
+      openLyceeInList(marker, map);
     }, 350);
+
     return;
   }
 
-  const expand = item.querySelector('.lycee-expand');
-  const lyceeTop = item.querySelector('.lycee-top');
+  const expand = item.querySelector(".lycee-expand");
+  const lyceeTop = item.querySelector(".lycee-top");
 
   expand.innerHTML = buildLyceeDetails(lyceeData, getFilters());
+
   const scrollHeight = expand.scrollHeight + 32;
-  expand.classList.add('open');
-  expand.style.maxHeight = scrollHeight + 'px';
-  
-  lyceeTop.classList.add('active');
-  
+  expand.classList.add("open");
+  expand.style.maxHeight = scrollHeight + "px";
+
+  lyceeTop.classList.add("active");
+
   // Ferme autres headers
-  document.querySelectorAll('.lycee-top.active').forEach(otherTop => {
-    if (otherTop !== lyceeTop) otherTop.classList.remove('active');
+  document.querySelectorAll(".lycee-top.active").forEach(otherTop => {
+    if (otherTop !== lyceeTop) otherTop.classList.remove("active");
   });
-  
-  item.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  
+
+  item.scrollIntoView({ behavior: "smooth", block: "center" });
+
   isLoadingForMarker = false;
 }
 
@@ -554,7 +558,7 @@ function updateLyceesList(map, filters) {
       e.stopPropagation();
     });
 
-    li.addEventListener("click", function(e) {
+    li.addEventListener("click", function (e) {
       e.stopPropagation();
 
       const isOpen = expand.classList.contains("open");
@@ -569,6 +573,7 @@ function updateLyceesList(map, filters) {
 
       if (!isOpen) {
         expand.innerHTML = buildLyceeDetails(l, getFilters());
+
         const scrollHeight = expand.scrollHeight + 32;
         expand.classList.add("open");
         expand.style.maxHeight = scrollHeight + "px";
@@ -589,7 +594,9 @@ function updateLyceesList(map, filters) {
           l.marker.closePopup();
         }
 
-        setTimeout(() => { expand.style.maxHeight = null; }, 10);
+        setTimeout(() => {
+          expand.style.maxHeight = null;
+        }, 10);
       }
     });
 
@@ -598,7 +605,7 @@ function updateLyceesList(map, filters) {
 }
 
 /* ============================================================
-Fonction qui affiche la liste des lycées présents sur la carte, triés selon le profil de l’utilisateur
+Fonction qui trie les lycées selon le profil de l’utilisateur
 ============================================================ */
 function sortLycees(lycees, filters) {
   const profil = filters?.profil || "equilibre";
@@ -611,9 +618,19 @@ function sortLycees(lycees, filters) {
 
   const getScore = (l) => {
     const voie = filters?.voie || "";
-    if (voie === "generale") return typeof l.score_general === "number" ? l.score_general : null;
-    if (voie === "technologique") return typeof l.score_techno === "number" ? l.score_techno : null;
-    if (voie === "professionnel") return typeof l.score_pro === "number" ? l.score_pro : null;
+
+    if (voie === "generale") {
+      return typeof l.score_general === "number" ? l.score_general : null;
+    }
+
+    if (voie === "technologique") {
+      return typeof l.score_techno === "number" ? l.score_techno : null;
+    }
+
+    if (voie === "professionnel") {
+      return typeof l.score_pro === "number" ? l.score_pro : null;
+    }
+
     return typeof l.perf_score === "number" ? l.perf_score : null;
   };
 
@@ -639,14 +656,16 @@ function sortLycees(lycees, filters) {
     const perfB = scoreB === -Infinity ? 0 : scoreB / 100;
     const proxA = distA === Infinity ? 0 : 1 - Math.min(distA / maxDist, 1);
     const proxB = distB === Infinity ? 0 : 1 - Math.min(distB / maxDist, 1);
+
     const mixA = 0.4 * perfA + 0.6 * proxA;
     const mixB = 0.4 * perfB + 0.6 * proxB;
-    return mixB - mixA; 
+
+    return mixB - mixA;
   });
 }
 
 /* ============================================================
-Vérifie si un lycée (feature GeoJSON) correspond aux filtres sélectionnés.
+Fonction qui vérifie si un lycée correspond aux filtres sélectionnés
 ============================================================ */
 function matchesFilters(feature, filters) {
   const p = feature?.properties || {};
@@ -654,15 +673,14 @@ function matchesFilters(feature, filters) {
   const toNum01 = (v) => (Number(v) === 1 ? 1 : 0);
   const norm = (s) => String(s ?? "").trim();
   const normGeneral = (s) => {
-  const str = String(s ?? "").trim().toLowerCase();
-  return str.charAt(0).toUpperCase() + str.slice(1);
-};
+    const str = String(s ?? "").trim().toLowerCase();
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
   const normLower = (s) => norm(s).toLowerCase();
 
-  // -----------------------
   // 1) Filtres globaux (radios)
-  // -----------------------
   const statut = norm(p.statut_public_prive);
+
   const matchStatut =
     !filters.statut ||
     (filters.statut === "public" && statut.includes("Public")) ||
@@ -698,9 +716,7 @@ function matchesFilters(feature, filters) {
     return false;
   }
 
-  // -----------------------
   // 2) Données options
-  // -----------------------
   const optionsGen = (p.optionGenerale || []).map(normGeneral);
   const optionsTech = (p.optionTechno || []).map(normLower);
   const optionsPro = (p.optionPro || []).map(normLower);
@@ -708,13 +724,12 @@ function matchesFilters(feature, filters) {
   // Si voie = "toutes", on n'applique pas les filtres spécifiques de voie
   if (!filters.voie) return true;
 
-  // -----------------------
   // 3) Voie générale (options ET + taux global)
-  // -----------------------
   if (filters.voie === "generale") {
     const selected = (filters.specialitesGeneral || []).map(normGeneral);
 
-    const okOptions = selected.length === 0 ? true : selected.every((s) => optionsGen.includes(s));
+    const okOptions =
+      selected.length === 0 ? true : selected.every((s) => optionsGen.includes(s));
 
     const needMin = String(filters.tauxMinGeneral ?? "") !== "";
     if (!needMin) return okOptions;
@@ -726,24 +741,22 @@ function matchesFilters(feature, filters) {
     return okOptions && okTaux;
   }
 
-  // -----------------------
   // 4) Voie technologique (options ET + taux "au moins une")
-  // -----------------------
   if (filters.voie === "technologique") {
     const selected = (filters.specialitesTechno || []).map(normLower);
 
-    // options: toutes les séries cochées doivent être présentes
-    const okOptions = selected.length === 0 ? true : selected.every((code) => optionsTech.includes(code));
+    const okOptions =
+      selected.length === 0 ? true : selected.every((code) => optionsTech.includes(code));
 
     const needMin = String(filters.tauxMinTechno ?? "") !== "";
     if (!needMin) return okOptions;
 
     const min = Number(filters.tauxMinTechno);
 
-    // si aucune cochée => tester toutes les séries du lycée
+    // Si aucune cochée => tester toutes les séries du lycée
     const seriesToTest = selected.length ? selected : optionsTech;
 
-    // taux: au moins une série testée doit être >= min
+    // Taux: au moins une série testée doit être >= min
     const okTaux = seriesToTest.some((code) => {
       const key = `taux_reu_${code}`;
       const taux = p.taux_techno?.[key];
@@ -753,24 +766,22 @@ function matchesFilters(feature, filters) {
     return okOptions && okTaux;
   }
 
-  // -----------------------
   // 5) Voie professionnelle (options ET + taux "au moins une")
-  // -----------------------
   if (filters.voie === "professionnel") {
     const selected = (filters.specialitesPro || []).map(normLower);
 
-    // options: tous les domaines cochés doivent être présents
-    const okOptions = selected.length === 0 ? true : selected.every((code) => optionsPro.includes(code));
+    const okOptions =
+      selected.length === 0 ? true : selected.every((code) => optionsPro.includes(code));
 
     const needMin = String(filters.tauxMinPro ?? "") !== "";
     if (!needMin) return okOptions;
 
     const min = Number(filters.tauxMinPro);
 
-    // si aucune cochée => tester tous les domaines du lycée
+    // Si aucune cochée => tester tous les domaines du lycée
     const domainsToTest = selected.length ? selected : optionsPro;
 
-    // taux: au moins un domaine testé doit être >= min
+    // Taux: au moins un domaine testé doit être >= min
     const okTaux = domainsToTest.some((code) => {
       const key = `taux_reu_${code}`;
       const taux = p.taux_pro?.[key];
@@ -784,7 +795,7 @@ function matchesFilters(feature, filters) {
 }
 
 /* ============================================================
-Met à jour dynamiquement les marqueurs des lycées sur la carte en fonction des filtres sélectionnés
+Fonction qui met à jour les marqueurs des lycées sur la carte
 ============================================================ */
 export function renderLycees(geojsonData, filters, map) {
   if (activeMarker) {
@@ -793,7 +804,6 @@ export function renderLycees(geojsonData, filters, map) {
   }
 
   lyceesCluster.clearLayers();
-
   lyceesAffiches = [];
 
   const layer = L.geoJSON(geojsonData, {
@@ -804,33 +814,32 @@ export function renderLycees(geojsonData, filters, map) {
       if (userLatLng) {
         distanceKm = calculateDistanceKm(userLatLng, latlng);
       }
+
       const props = { ...feature.properties, distanceKm };
-      const marker = L.marker(latlng, { icon: schoolIcon });    
+
+      const marker = L.marker(latlng, { icon: schoolIcon });
       marker.bindPopup(buildLyceePopup(props));
-      // marker.on("popupopen", () => {
-      //   console.groupCollapsed(`[LYCÉE] ${props.nom_etablissement ?? "—"} (${props.uai ?? "—"})`);
-      //   console.log(props);
-      //   console.groupEnd();
-      // });
 
       marker.on("popupclose", () => {
         if (activeMarker === marker) {
           marker.setIcon(schoolIcon);
           activeMarker = null;
+
           document.querySelectorAll(".lycee-expand.open").forEach(el => {
             el.classList.remove("open");
             el.style.maxHeight = null;
           });
-           document.querySelectorAll(".lycee-top.active").forEach(el => {
+
+          document.querySelectorAll(".lycee-top.active").forEach(el => {
             el.classList.remove("active");
           });
         }
       });
-      
+
       marker.on("click", () => {
         selectLycee(marker, latlng.lat, latlng.lng, map);
       });
-      
+
       lyceesAffiches.push({
         ...feature.properties,
         lat: latlng.lat,
@@ -838,12 +847,13 @@ export function renderLycees(geojsonData, filters, map) {
         distanceKm,
         marker
       });
+
       return marker;
     }
   });
 
   lyceesCluster.addLayer(layer);
+
   listLimit = LIST_STEP;
   updateLyceesList(map, filters);
-
 }
